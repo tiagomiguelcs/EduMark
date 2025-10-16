@@ -1,0 +1,15 @@
+docs/*.md
+logs
+*.log
+npm-debug.log*
+build/Release
+node_modules/
+.npm
+*.tgz
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+dist
+.DS_Store

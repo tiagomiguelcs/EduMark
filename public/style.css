@@ -1,0 +1,252 @@
+/* HackMD-like CSS Style */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;700&display=swap');
+
+/* --- Global layout --- */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #2b2b2b;
+  background: #f8f9fa;
+  font-size: 16px;
+  text-align: justify;
+}
+header{
+  display: flex;
+  font-weight: bold;
+  margin: 0 auto;
+}
+header div{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  gap:4px;
+  width:12%; 
+  padding: 8px 0px;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+footer{
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #71717a; 
+  padding-bottom: 18px;
+}
+
+footer img{
+  width: 1.5em;
+  height: auto;
+  filter: grayscale(1);
+}
+
+.layout{
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 100px;
+  padding: 18px 0px;
+  /* border: 1px solid red; */
+  margin: 0 auto;
+}
+
+.layout div{
+  border: 0px solid green;
+}
+
+.markdown-gutter{
+  grid-column: 3;
+}
+
+.markdown-toc{
+  grid-column: 1;
+  line-height: 1.7;
+  font-size: 10px;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.markdown-toc nav{
+  border: 0px solid yellow;
+  /* padding-top: 42px; */
+}
+
+.markdown-toc-logo{
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0px 26px 8px 20px;
+  padding-bottom: 5px;
+  font-weight: bold;
+  overflow: hidden;
+  color: #2b2b2bf4;
+  border-bottom: 1px solid #71717a4d !important;
+  font-size:large;
+}
+.markdown-toc-logo img{
+  width: 2.2rem;
+  height: auto;
+}
+
+.markdown-toc a{
+  text-decoration: none;
+  color: #71717a;
+  width: 80%;
+  display: block;               
+  white-space: nowrap;        
+  overflow: hidden;          
+  text-overflow: ellipsis;   
+  padding-left: 20px;
+}
+
+.markdown-toc a:hover{
+  font-weight: bold;
+}
+
+.markdown-toc ol,
+.markdown-toc ul{
+  border: 0px solid red;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.markdown-toc ul ul{
+  padding-left: 10px;
+}
+
+.markdown-body {
+  grid-column: 2;
+  line-height: 1.7;
+  font-size: 100%;
+  /* width: 100%; */
+  max-width: 800px;
+  /* margin: 40px auto; */
+  background: #fff;
+  padding: 4px 40px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.markdown-body h1,
+.markdown-body h2, 
+.markdown-body h3, 
+.markdown-body h4 {
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+  text-align: left;
+}
+
+.markdown-body ul, 
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body table{
+  border-spacing: 0;
+    line-height: 1.7;
+}
+
+.markdown-body table th,
+.markdown-body table td{
+  padding: 6px 13px;
+  border: 1px solid #e4e4e7;
+}
+
+.markdown-body table th{
+  background: #f4f4f5;
+}
+
+.markdown-body a{
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.markdown-body a:hover{
+  text-decoration: underline;
+}
+
+/* Links inside headings should inherit the heading style and not use the default link color */
+.markdown-body h1 a,
+.markdown-body h2 a,
+.markdown-body h3 a,
+.markdown-body h4 a,
+.markdown-body h5 a,
+.markdown-body h6 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.markdown-body h1 a:hover,
+.markdown-body h2 a:hover,
+.markdown-body h3 a:hover,
+.markdown-body h4 a:hover,
+.markdown-body h5 a:hover,
+.markdown-body h6 a:hover {
+  text-decoration: none; 
+  cursor: text;
+}
+
+/* --- containers (:::info etc.) --- */
+.container{
+  border-radius: 6px;
+  padding: 2px 15px; /* top/bottom left/right */
+  margin: 20px 0;
+}
+
+.container.success{
+  background-color: #d9f9e5;
+  border-left: 4px solid #43946c;
+  color: #43946c;
+}
+
+.container.info{
+  background-color: #d9edf7;
+  border-left: 4px solid rgb(2 132 199);
+  color: #0284c7
+}
+
+.container.warning{
+  background-color: #fef3c799;
+  color: #f59e0b;
+  border-left-color: #f59e0b;
+}
+
+.container.danger{
+  background-color: #fee2e299;
+  color: #ef4444;
+  border-left-color: #ef4444;
+}
+
+
+/* --- Marks (==Mark==) --- */
+
+mark{
+  background: #fef7dd;
+  color: #f6a323;
+  padding: 3.2px;
+}
+
+
+/* Responsive: hide TOC and collapse to single column when viewport is narrow (or user zooms in) */
+@media (max-width: 980px) {
+  .markdown-toc {
+    display: none;
+  }
+
+  .layout {
+    grid-template-columns: 1fr; /* single column */
+    padding: 18px;
+  }
+
+  .markdown-body {
+    grid-column: 1;
+    margin: 20px auto;
+    padding: 12px;
+    max-width: 100%;
+  }
+}
+
+
