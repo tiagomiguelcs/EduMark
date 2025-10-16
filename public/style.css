@@ -11,20 +11,6 @@ body {
   font-size: 16px;
   text-align: justify;
 }
-header{
-  display: flex;
-  font-weight: bold;
-  margin: 0 auto;
-}
-header div{
-  display:flex;
-  justify-content: center;
-  align-items: center;
-  gap:4px;
-  width:12%; 
-  padding: 8px 0px;
-  border-bottom: 1px solid #e4e4e7;
-}
 
 footer{
   display: flex;
@@ -51,34 +37,25 @@ footer img{
   margin: 0 auto;
 }
 
-.layout div{
-  border: 0px solid green;
-}
-
 .markdown-gutter{
   grid-column: 3;
 }
 
 .markdown-toc{
   grid-column: 1;
-  line-height: 1.7;
-  font-size: 10px;
+  line-height: 1.8;
+  font-size: 14px;
   position: sticky;
   top: 20px;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
 }
 
-.markdown-toc nav{
-  border: 0px solid yellow;
-  /* padding-top: 42px; */
-}
-
 .markdown-toc-logo{
   display: flex;
   gap: 6px;
   align-items: center;
-  margin: 0px 26px 8px 20px;
+  margin: 0px 26px 8px 4px;
   padding-bottom: 5px;
   font-weight: bold;
   overflow: hidden;
@@ -94,12 +71,12 @@ footer img{
 .markdown-toc a{
   text-decoration: none;
   color: #71717a;
-  width: 80%;
+  width: 95%;
   display: block;               
   white-space: nowrap;        
   overflow: hidden;          
-  text-overflow: ellipsis;   
-  padding-left: 20px;
+  text-overflow: ellipsis;
+  padding-left: 4px;   
 }
 
 .markdown-toc a:hover{
@@ -137,6 +114,16 @@ footer img{
   border-bottom: 1px solid #eaecef;
   padding-bottom: 0.3em;
   text-align: left;
+}
+
+.markdown-body h1{
+  font-size: 1.5em;
+}
+.markdown-body h2{
+  font-size: 1.25em;
+}
+.markdown-body h3{
+  font-size: 1.1em;
 }
 
 .markdown-body ul, 

@@ -117,16 +117,14 @@ app.get("/view/:filename", (req, res) => {
         <link rel="stylesheet" href="https://www.nerdfonts.com/assets/css/webfont.css">
       </head>
       <body>
-        <header>
-        </header>
         <div class="layout">
         <div class="markdown-toc">
           <div class="markdown-toc-logo">
             <img src="/logo.png"/>
             <span>EduMark</span>
           </div>
-        
-        ${tocHtml}</div>
+          ${tocHtml}
+        </div>
         <div class="markdown-body">${htmlContent}</div>
         <div class="markdown-gutter">&nbsp;</div>
         </div>
