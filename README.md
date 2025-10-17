@@ -2,7 +2,7 @@
 
 <p align="center">
   <img style="width:148px; height:auto" src="public/logo.png"/><br/>
-  EduMark - Educational Markdown Viewer
+  **EduMark - Educational Markdown Viewer**
 </p>
 
 EduMark is a small Markdown viewer for educational environments that can render Markdown files hosted in a GitHub repository and present them with a table-of-contents and a simple layout.
