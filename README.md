@@ -33,23 +33,20 @@ Create a `.env` file in the project root with these variables:
 GITHUB_TOKEN=ghp_...        # GitHub personal access token (optional for public repos, required for private)
 GITHUB_OWNER=your-org-or-username
 GITHUB_REPO=your-repo-name
-SERVER_PORT=3131            # optional, defaults to 3131
 ```
 
-3. Run the server
+3. Run the server for development or deploy
 
 ```bash
-node edumark.js
-# or, during development with nodemon (if installed globally)
-# nodemon edumark.js
+# To test or develop:
+npm run dev
+# To deploy:
+npm run deploy
 ```
 
 ## Usage / Examples
-
-Render a markdown file for presentation that lives in the repository (server fetches from GitHub) as follows:
-
-Example URL pattern:
-```
+A Markdown file stored in the repository can be rendered for presentation purposes (with the server fetching it from GitHub) as follows:
+```curl
 GET /view?lecture=<number>&filename=<file.md>&branch=<branch>
 ```
 
