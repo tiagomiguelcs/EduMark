@@ -1,10 +1,12 @@
 # EduMark
 
-![EduMark Logo](public/logo.png)
+<p align="center">
+  <img style="width:148px; height:auto" src="public/logo.png"/><br/>
+  EduMark - Educational Markdown Viewer
+</p>
 
 EduMark is a small Markdown viewer for educational environments that can render Markdown files hosted in a GitHub repository and present them with a table-of-contents and a simple layout.
 
-Features
 - Render Markdown with `markdown-it` and useful plugins (anchors, TOC, marks, containers).
 - Fetch Markdown files directly from a GitHub repo (by lecture number / filename / branch).
 - Lightweight, single-file server (`edumark.js`).
