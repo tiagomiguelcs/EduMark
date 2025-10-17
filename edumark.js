@@ -232,7 +232,7 @@ function renderMarkdown(markdownContent) {
         <div class="markdown-gutter">&nbsp;</div>
         </div>
         <footer>
-          <img src="/logo.png"/>
+          <img src="/edumark/logo.png"/>
           <i class="nf nf-md-github" aria-hidden="true"></i>
           <span><b>EduMark</b> © 2025 | 0.1 alpha</span>
         </footer>
