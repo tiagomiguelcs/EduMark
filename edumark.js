@@ -11,6 +11,7 @@ const app = express();
 dotenv.config();
 // Serve static files like
 app.use(express.static("public"));
+app.use('/edumark', express.static("public"));
 const SERVER_PORT = process.env.SERVER_PORT || 3131;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
