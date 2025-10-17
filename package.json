@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "nodemon edumark.js",
-    "stop": "kill -9 $(lsof -t -i:3000)",
+    "stop": "kill -9 $(lsof -t -i:3131)",
     "deploy": "pm2 start edumark.js --name 'edumark'",
     "monit": "pm2 monit",
     "logs": "pm2 logs edumark",

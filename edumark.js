@@ -61,12 +61,12 @@ app.get("/", (req, res) => {
     <html>
       <head>
         <title>EduMark - Educational Markdown Viewer</title>
-        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="/edumark/style.css">
          <link rel="stylesheet" href="https://www.nerdfonts.com/assets/css/webfont.css">
       </head>
       <body>
         <div class="landing">
-            <img src="/logo.png" width="128px"/>
+            <img src="/edumark/logo.png" width="128px"/>
             <span>EduMark</span>
             <div>
               <i class="nf nf-md-github" aria-hidden="true"></i>
@@ -215,14 +215,14 @@ function renderMarkdown(markdownContent) {
       <head>
         <meta charset="utf-8" />
         <title>EduMark - Educational Markdown Viewer</title>
-        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="/edumark/style.css">
         <link rel="stylesheet" href="https://www.nerdfonts.com/assets/css/webfont.css">
       </head>
       <body>
         <div class="layout">
         <div class="markdown-toc">
           <div class="markdown-toc-logo">
-            <img src="/logo.png"/>
+            <img src="/edumark/logo.png"/>
             <span>EduMark</span>
           </div>
           ${tocHtml}
@@ -242,6 +242,6 @@ function renderMarkdown(markdownContent) {
 }
 
 app.listen(SERVER_PORT, () => {
-  console.log(`EduMark Server running at http://localhost:${SERVER_PORT}`);
+  console.log(`EduMark Server running at http://localhost:${SERVER_PORT}/edumark`);
 });
 
