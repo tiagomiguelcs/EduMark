@@ -29,14 +29,27 @@ body {
   box-sizing: border-box;
 }
 
+.landing a{
+  text-decoration: none;
+  color: #9c9c9c;
+}
 
-.landing div:last-child{
+.landing > div:last-child{
   display: flex;
   align-items: center;
   gap: 4px;
   font-weight: normal;
   font-size: small;
   color: #9c9c9c;
+}
+
+.error{
+  display:block;
+  background-color:#f2dede;
+  padding:10px;
+  border-radius:5px;
+  color:#a94442;
+  font-size:14px
 }
 
 footer{
@@ -49,8 +62,13 @@ footer{
   padding-bottom: 18px;
 }
 
+footer a{
+  text-decoration: none;
+  color: #71717a; 
+}
+
 footer img{
-  width: 1.5em;
+  width: 1.3em;
   height: auto;
   filter: grayscale(1);
 }
@@ -90,6 +108,7 @@ footer img{
   border-bottom: 1px solid #71717a4d !important;
   font-size:large;
 }
+
 .markdown-toc-logo img{
   width: 2.2rem;
   height: auto;
@@ -236,7 +255,6 @@ footer img{
 
 
 /* --- Marks (==Mark==) --- */
-
 mark{
   background: #fef7dd;
   color: #f6a323;

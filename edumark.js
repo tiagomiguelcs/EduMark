@@ -5,6 +5,7 @@ import container from "markdown-it-container";
 import anchor from "markdown-it-anchor";
 import toc from "markdown-it-toc-done-right";
 import dotenv from 'dotenv';
+import {createLandingPage, createViewPage, createErrorPage} from './templates.js';
 
 const app = express();
 // Load variables from '.env'
@@ -58,27 +59,8 @@ registerContainer("success", "Success");
 
 // Homepage – list Markdown files
 app.get("/", (req, res) => {
-  res.send(`
-    <html>
-      <head>
-        <title>EduMark - Educational Markdown Viewer</title>
-        <link rel="stylesheet" href="/edumark/style.css">
-         <link rel="stylesheet" href="https://www.nerdfonts.com/assets/css/webfont.css">
-      </head>
-      <body>
-        <div class="landing">
-            <img src="/edumark/logo.png" width="128px"/>
-            <span>EduMark</span>
-            <div>
-              <i class="nf nf-md-github" aria-hidden="true"></i>
-              0.1 alpha
-            </div>
-        </div>
-      </body>
-    </html>
-  `);
+  res.send(createLandingPage());
 });
-
 
 /**
  * GET /view
@@ -97,7 +79,7 @@ app.get("/", (req, res) => {
  *  - 502/504: GitHub API/network errors (bad gateway or timeout).
  */
 app.get('/view', async (req, res) => {
-  try {
+  try { 
     // Example: /sync?lecture=5&filename=VCD-Lecture-05.md&branch=main
     // NOTE: keep `base` without a leading slash so we don't introduce %2F at the start.
     const base = 'Theoretical/Lecture-0';
@@ -106,27 +88,27 @@ app.get('/view', async (req, res) => {
     const branch = (req.query.branch || req.query.ref || 'main').toString().trim();
 
     // Basic validation
-    if (!lecture.match(/^\d+$/)) return res.status(400).send('Invalid lecture number');
-    if (!filename) return res.status(400).send('Filename is required');
-    if (!branch) return res.status(400).send('Branch/ref is required');
+    if (!lecture.match(/^\d+$/)) return res.status(400).send(createErrorPage('Invalid lecture number'));
+    if (!filename) return res.status(400).send(createErrorPage('Filename is required'));
+    if (!branch) return res.status(400).send(createErrorPage('Branch/ref is required'));
 
     // Sanitize filename: disallow directory separators and traversal, require .md
     filename = filename.replace(/^\/+/, ''); // remove leading slashes
     if (filename.includes('..') || filename.includes('/') || filename.includes('\\') || filename.includes('\0')) {
-      return res.status(400).send('Invalid filename');
+      return res.status(400).send(createErrorPage('Invalid filename'));
     }
     if (!/^[\w\-. ()]+\.md$/i.test(filename) || filename.length > 200) {
-      return res.status(400).send('Filename must be a .md file with a safe name');
+      return res.status(400).send(createErrorPage('Filename must be a .md file with a safe name'));
     }
 
     // Build repository path and guard again for traversal
     const repoPath = `${base}${lecture}/${filename}`;
-    if (repoPath.includes('..')) return res.status(400).send('Invalid path');
+    if (repoPath.includes('..')) return res.status(400).send(createErrorPage('Invalid path'));
 
     // Ensure GitHub configuration is present
     if (!GITHUB_OWNER || !GITHUB_REPO || !GITHUB_TOKEN) {
-      console.error('GitHub environment variables missing');
-      return res.status(500).send('Server not configured');
+      // console.error('GitHub environment variables missing');
+      return res.status(500).send(createErrorPage('Server not configured'));
     }
 
     // Encode each path segment to keep slashes between segments
@@ -150,26 +132,33 @@ app.get('/view', async (req, res) => {
       });
     } catch (err) {
       if (err.name === 'AbortError') {
-        return res.status(504).send('GitHub API request timed out');
+        return res.status(504).send(createErrorPage('GitHub API request timed out'));
       }
-      console.error('Fetch error in /sync:', err);
-      return res.status(502).send('Error fetching from GitHub');
+      console.error('Fetch error in /view:', err);
+      return res.status(502).send(createErrorPage('Error fetching from GitHub'));
     } finally {
       clearTimeout(timeout);
     }
 
     if (!response.ok) {
-      const msg = await response.text().catch(() => '');
-      return res.status(response.status).send(`GitHub API error (${response.status}): ${msg}`);
+      // const msg = await response.text().catch(() => '');
+      // return res.status(response.status).send(`GitHub API error (${response.status}): ${msg}`);
+      return res.status(response.status).send(createErrorPage('GitHub API error.'));
     }
     const markdown = await response.text();
     const result = renderMarkdown(markdown);
     return res.status(200).send(result.body);
   } catch (err) {
-    return res.status(500).send('Internal Server Error');
+    // console.log(err);
+    return res.status(500).send(createErrorPage('Internal Server Error'));
   }
 });
 
+// Handles 404
+app.use((req, res, next) => {
+  const message = "404 | You've taken a wrong turn.";
+  res.status(402).send(createErrorPage(message));
+})
 
 /**
  * Render raw Markdown text into a full HTML page string.
@@ -210,39 +199,24 @@ function renderMarkdown(markdownContent) {
     tocHtml = '';
     htmlContent = md.render(markdownContent);
   }
-
-  const body = `
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <title>EduMark - Educational Markdown Viewer</title>
-        <link rel="stylesheet" href="/edumark/style.css">
-        <link rel="stylesheet" href="https://www.nerdfonts.com/assets/css/webfont.css">
-      </head>
-      <body>
+  
+  const body = createViewPage(`
         <div class="layout">
-        <div class="markdown-toc">
-          <div class="markdown-toc-logo">
-            <img src="/edumark/logo.png"/>
-            <span>EduMark</span>
+          <div class="markdown-toc">
+            <div class="markdown-toc-logo">
+              <img src="/edumark/logo.png"/>
+              <span>EduMark</span>
+            </div>
+            ${tocHtml}
           </div>
-          ${tocHtml}
+          <div class="markdown-body">${htmlContent}</div>
+          <div class="markdown-gutter">&nbsp;</div>
         </div>
-        <div class="markdown-body">${htmlContent}</div>
-        <div class="markdown-gutter">&nbsp;</div>
-        </div>
-        <footer>
-          <img src="/edumark/logo.png"/>
-          <i class="nf nf-md-github" aria-hidden="true"></i>
-          <span><b>EduMark</b> © 2025 | 0.1 alpha</span>
-        </footer>
-      </body>
-    </html>
-  `;
+  `);
   return { status: 200, body };
 }
 
 app.listen(SERVER_PORT, () => {
-  console.log(`EduMark Server running at http://localhost:${SERVER_PORT}/edumark`);
+  console.log(`EduMark Server running at http://localhost:${SERVER_PORT}/`);
 });
 

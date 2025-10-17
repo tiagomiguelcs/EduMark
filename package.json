@@ -1,16 +1,20 @@
 {
-  "name": "EduMark",
+  "name": "edumark",
   "version": "0.0.1",
+  "designation": "alpha",
   "main": "edumark.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon edumark.js",
-    "stop": "kill -9 $(lsof -t -i:3131)",
+    "dev": "nodemon edumark.js",
     "deploy": "pm2 start edumark.js --name 'edumark'",
-    "monit": "pm2 monit",
-    "logs": "pm2 logs edumark",
+    "stop": "kill -9 $(lsof -t -i:3131)",
     "delete": "pm2 delete edumark",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "monit": "pm2 monit",
+    "logs": "pm2 logs edumark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tiagomiguelcs/edumark"
   },
   "keywords": [],
   "author": "tiagomiguelcs",
