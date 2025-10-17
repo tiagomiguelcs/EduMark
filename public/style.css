@@ -3,6 +3,7 @@
 :root{
   --normal-font-size: 16px;
   --large-font-size: 22px;
+  --toc-font-size: 11px;
 }
 /* --- Global layout --- */
 body {
@@ -89,7 +90,7 @@ footer img{
 .markdown-toc{
   grid-column: 1;
   line-height: 1.8;
-  font-size: 14px;
+  font-size: var(--toc-font-size);
   position: sticky;
   top: 20px;
   max-height: calc(100vh - 40px);
@@ -263,7 +264,7 @@ mark{
 
 
 /* Responsive: hide TOC and collapse to single column when viewport is narrow (or user zooms in) */
-@media (max-width: 1320px) {
+@media (max-width: 1536px) {
   .markdown-toc {
     display: none;
   }
@@ -277,7 +278,7 @@ mark{
     grid-column: 1;
     margin: 20px auto;
     padding: 12px;
-    max-width: 100%;
+    max-width: 98%;
   }
 }
 
