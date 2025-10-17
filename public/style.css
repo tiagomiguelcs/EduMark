@@ -245,7 +245,7 @@ mark{
 
 
 /* Responsive: hide TOC and collapse to single column when viewport is narrow (or user zooms in) */
-@media (max-width: 980px) {
+@media (max-width: 1320px) {
   .markdown-toc {
     display: none;
   }
