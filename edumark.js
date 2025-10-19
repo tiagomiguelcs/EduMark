@@ -203,7 +203,7 @@ function renderMarkdown(markdownContent) {
   const body = createViewPage(`
         <div class="layout">
           <div class="markdown-toc">
-            <div class="markdown-toc-logo">
+            <div class="markdown-toc-logo" onclick="location.replace(location.href.split('#')[0])" style="cursor:pointer">
               <img src="/edumark/logo.png"/>
               <span>EduMark</span>
             </div>
