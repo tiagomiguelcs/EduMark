@@ -149,7 +149,7 @@ app.get('/view', async (req, res) => {
     const result = renderMarkdown(markdown);
     return res.status(200).send(result.body);
   } catch (err) {
-    // console.log(err);
+    console.log(err);
     return res.status(500).send(createErrorPage('Internal Server Error'));
   }
 });
@@ -198,6 +198,7 @@ function parseTags(markdownContent){
     console.error("Unable to fetch tags, use syntax: tags: tag1, tag2, ...");
     return([]);
   }
+  return([]);
 }
 /**
  * Render raw Markdown text into a full HTML page string.
@@ -211,8 +212,10 @@ function parseTags(markdownContent){
  * and the rendered HTML string suitable for sending as an Express response body.
  */
 function renderMarkdown(markdownContent) {
-  // Find document tags
+  // Find document tags and convert to html 
   const tags = parseTags(markdownContent);
+  let tagsHtml = "";
+  for (let tag of tags) tagsHtml += `<div>${tag}</div>`;
   // Remove tags from the markdown file, they will be placed somewhere else. 
   markdownContent = removeTags(markdownContent);
   
@@ -220,11 +223,7 @@ function renderMarkdown(markdownContent) {
   const combinedHtml = md.render('[toc]\n' + markdownContent);
   let tocHtml = '';
   let htmlContent = combinedHtml;
-  let tagsHtml = "";
-  // Convert to HTML
-  for (let tag of tags){
-    tagsHtml += `<div>${tag}</div>`;
-  }
+  
   // Try several patterns to find the generated TOC container
   const patterns = [
     /<div[^>]*id=["']toc["'][^>]*>[\s\S]*?<\/div>/i,
