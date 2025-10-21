@@ -160,6 +160,45 @@ app.use((req, res, next) => {
   res.status(402).send(createErrorPage(message));
 })
 
+
+function removeTags(markdownContent){
+  const lines = markdownContent.match(/^.*((\r\n|\n|\r)|$)/gm);
+  markdownContent = "";
+    for(let i=0; i < lines.length; i++){
+      const line = lines[i];
+      if (line.includes(`tags`)) continue;
+      markdownContent += line;
+  }
+  return(markdownContent);
+}
+
+function parseTags(markdownContent){
+  const lines = markdownContent.match(/^.*((\r\n|\n|\r)|$)/gm);
+  try {
+    for(let i=0; i < lines.length; i++){
+      const line = lines[i];
+      if (line.includes(`tags`)){
+        const ioff = line.indexOf(":")+1;
+        if (ioff == -1) throw new Error();      
+        let raw = line.substring(ioff);
+        raw = raw.replaceAll("\n", "");
+        if (raw.includes("`"))
+          raw = raw.replaceAll("`", "");
+        if (raw.includes("´")) 
+          raw = raw.replaceAll("´", ""); 
+        let dl = raw.includes(";") ? ";" : ",";
+        const tags = raw.split(dl);
+        // Remove white spaces
+        for (let j=0; j < tags.length; j++)
+          tags[j] = tags[j].trim();
+        return(tags);
+      }
+    }
+  } catch (error) {
+    console.error("Unable to fetch tags, use syntax: tags: tag1, tag2, ...");
+    return([]);
+  }
+}
 /**
  * Render raw Markdown text into a full HTML page string.
  *
@@ -172,11 +211,20 @@ app.use((req, res, next) => {
  * and the rendered HTML string suitable for sending as an Express response body.
  */
 function renderMarkdown(markdownContent) {
+  // Find document tags
+  const tags = parseTags(markdownContent);
+  // Remove tags from the markdown file, they will be placed somewhere else. 
+  markdownContent = removeTags(markdownContent);
+  
   // Render Markdown Content
   const combinedHtml = md.render('[toc]\n' + markdownContent);
   let tocHtml = '';
   let htmlContent = combinedHtml;
-
+  let tagsHtml = "";
+  // Convert to HTML
+  for (let tag of tags){
+    tagsHtml += `<div>${tag}</div>`;
+  }
   // Try several patterns to find the generated TOC container
   const patterns = [
     /<div[^>]*id=["']toc["'][^>]*>[\s\S]*?<\/div>/i,
@@ -207,9 +255,13 @@ function renderMarkdown(markdownContent) {
               <img src="/edumark/logo.png"/>
               <span>EduMark</span>
             </div>
+
             ${tocHtml}
           </div>
-          <div class="markdown-body">${htmlContent}</div>
+          <div class="markdown-body">
+            <div class="markdown-toc-tags">${tagsHtml}</div>
+            ${htmlContent}
+          </div>
           <div class="markdown-gutter">&nbsp;</div>
         </div>
   `);
