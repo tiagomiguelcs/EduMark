@@ -1,4 +1,4 @@
-docs/*.md
+docs/*
 logs
 *.log
 npm-debug.log*

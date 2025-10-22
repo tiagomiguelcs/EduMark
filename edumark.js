@@ -6,6 +6,9 @@ import anchor from "markdown-it-anchor";
 import toc from "markdown-it-toc-done-right";
 import dotenv from 'dotenv';
 import {createLandingPage, createViewPage, createErrorPage} from './templates.js';
+import { readFile, stat } from 'fs/promises';
+import { join, normalize } from 'path';
+import hljs from 'highlight.js';
 
 const app = express();
 // Load variables from '.env'
@@ -17,9 +20,24 @@ const SERVER_PORT = process.env.SERVER_PORT || 3131;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const GITHUB_REPO  = process.env.GITHUB_REPO;
+const PREVIEW_FOLDER = process.env.PREVIEW_FOLDER; // Place markdown documents in this folder to preview them.
 
 // Initialize Markdown parser with HTML enabled and necessary plugins
-const md = new MarkdownIt({ html: true, linkify: true, typographer: true })
+const md = new MarkdownIt({ 
+  html: true, 
+  linkify: true, 
+  typographer: true,
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return '<pre class="hljs"><code>' +
+               hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+               '</code></pre>';
+      } catch (__) {}
+    }
+    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+  }
+})
   .use(mark)
   .use(anchor, {
     permalink: anchor.permalink.headerLink(),
@@ -60,6 +78,82 @@ registerContainer("success", "Success");
 // Homepage – list Markdown files
 app.get("/", (req, res) => {
   res.send(createLandingPage());
+});
+
+/**
+ * GET /preview-check
+ * Check the last modification time of a file for live reload functionality.
+ * 
+ * This endpoint returns the modification timestamp (mtimeMs) of a file in the PREVIEW_FOLDER.
+ * Used by the live reload script in /preview to detect file changes without reloading.
+ *
+ * Query parameters:
+ *  - filename {string} (required) : Name of the Markdown file to check (e.g., "lecture.md").
+ *                                   Must end with .md and be located in PREVIEW_FOLDER.
+ * Example:
+ *  GET /preview-check?filename=lecture-01.md
+ *  Response: { "mtime": 1729612345678.9 }
+ */
+app.get('/preview-check', async (req, res) => {
+  try {
+    const filename = (req.query.filename || '').toString().trim();
+    if (!filename) return res.status(400).json({ error: 'Filename required' });
+    
+    const defaultBasePath = process.cwd() + PREVIEW_FOLDER;
+    const fullPath = normalize(join(defaultBasePath, filename));
+    
+    if (!fullPath.startsWith(defaultBasePath) || !fullPath.endsWith('.md')) {
+      return res.status(400).json({ error: 'Invalid file' });
+    }
+    
+    const stats = await stat(fullPath);
+    return res.json({ mtime: stats.mtimeMs });
+  } catch (err) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+});
+
+/**
+ * GET /preview
+ * Preview a local Markdown file from the PREVIEW_FOLDER directory with live reload support.
+ * 
+ * This endpoint renders local Markdown files with automatic refresh detection.
+ *
+ * Query parameters:
+ *  - filename {string} (required) : Name of the Markdown file in PREVIEW_FOLDER (e.g., "lecture.md").
+ *                                   Must end with .md and cannot contain path separators or traversal.
+ *
+ * Responses:
+ *  - 200: HTML page containing rendered Markdown with live reload script.
+ *  - 400: Bad request (missing filename, invalid characters, or path traversal attempt).
+ *  - 404: File not found in PREVIEW_FOLDER.
+ *  - 500: Internal server error (file read error or rendering failure).
+ *
+ * Example:
+ *  GET /preview?filename=lecture-01.md
+ */
+app.get('/preview', async (req, res) => {
+  try {
+    const filename = (req.query.filename || '').toString().trim();
+    if (!filename) return res.status(400).send(createErrorPage('Filename is required'));
+    
+    // Resolve to absolute path and prevent directory traversal
+    const defaultBasePath = process.cwd()+PREVIEW_FOLDER;
+    // console.log(defaultBasePath);
+    let fullPath = normalize(join(defaultBasePath, filename));
+
+    if (!fullPath.startsWith(defaultBasePath)) return res.status(400).send(createErrorPage('Invalid file path'));
+    if (!fullPath.endsWith('.md')) return res.status(400).send(createErrorPage('Only .md files allowed'));
+
+    const markdown = await readFile(fullPath, 'utf-8');
+    const result = renderMarkdown(markdown, filename); // Pass filename for live reload
+    return res.status(200).send(result.body);
+
+  }catch (err) {
+    if (err.code === 'ENOENT') return res.status(404).send(createErrorPage('File not found'));
+    console.error(err);
+    return res.status(500).send(createErrorPage('Internal Server Error'));
+  }
 });
 
 /**
@@ -208,10 +302,11 @@ function parseTags(markdownContent){
  * the result into the application's HTML layout.
  *
  * @param {string} markdownContent - Raw markdown source to render.
+ * @param {string} filename - Optional filename for live reload (preview mode only).
  * @returns {{status: number, body: string}} An object containing the HTTP status code
  * and the rendered HTML string suitable for sending as an Express response body.
  */
-function renderMarkdown(markdownContent) {
+function renderMarkdown(markdownContent, filename = null) {
   // Find document tags and convert to html 
   const tags = parseTags(markdownContent);
   let tagsHtml = "";
@@ -247,6 +342,35 @@ function renderMarkdown(markdownContent) {
     htmlContent = md.render(markdownContent);
   }
   
+  // Add live reload script if filename provided (preview mode)
+  const liveReloadScript = filename ? `
+    <script>
+      let lastMtime = null;
+      const checkInterval = 2000; // Check every 2 seconds
+      
+      async function checkFileChange() {
+        try {
+          const response = await fetch('/preview-check?filename=${encodeURIComponent(filename)}');
+          if (response.ok) {
+            const data = await response.json();
+            if (lastMtime === null) {
+              lastMtime = data.mtime;
+            } else if (data.mtime !== lastMtime) {
+              console.log('File changed, reloading...');
+              location.reload();
+            }
+          }
+        } catch (err) {
+          console.error('Check failed:', err);
+        }
+      }
+      
+      // Start checking
+      checkFileChange();
+      setInterval(checkFileChange, checkInterval);
+    </script>
+  ` : '';
+  
   const body = createViewPage(`
         <div class="layout">
           <div class="markdown-toc">
@@ -263,6 +387,7 @@ function renderMarkdown(markdownContent) {
           </div>
           <div class="markdown-gutter">&nbsp;</div>
         </div>
+        ${liveReloadScript}
   `);
   return { status: 200, body };
 }
