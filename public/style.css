@@ -12,6 +12,7 @@
   --update-datetime-font-size: 12px;
   --footer-font-color: #71717a;
   --code-font-size: small;
+  --code-background-color: #f4f4f5;
 }
 /* --- Global layout --- */
 body {
@@ -31,6 +32,22 @@ pre{
   border: 1px solid #e4e4e7;
   padding: 4px;
   overflow-x: auto;
+  /* background-color: var(--code-background-color); */
+}
+
+/* Inline code (not being inside pre) */
+:not(pre) > code{
+  background-color: var(--code-background-color);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+}
+
+/* --- Emphasis (italic) --- */
+em{
+  font-style: italic;
+  color: inherit;
 }
 
 /* --- blockquote --- */
