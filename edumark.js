@@ -146,7 +146,7 @@ app.get('/preview', async (req, res) => {
     if (!fullPath.endsWith('.md')) return res.status(400).send(createErrorPage('Only .md files allowed'));
 
     const markdown = await readFile(fullPath, 'utf-8');
-    const result = renderMarkdown(markdown, filename); // Pass filename for live reload
+    const result = renderMarkdown(markdown, undefined, filename); // Pass filename for live reload
     return res.status(200).send(result.body);
 
   }catch (err) {
@@ -386,9 +386,9 @@ function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) 
           <div class="markdown-body">
             <div class="markdown-toc-tags">${tagsHtml}</div>
             ${htmlContent}
-            <div class="markdown-update-datetime">
-            <span class="nf nf-md-calendar_clock_outline"></span>Lecture Updated on ${lastModifiedDatetime}
-            </div>
+            ${lastModifiedDatetime ? `<div class="markdown-update-datetime">
+            <span class="nf nf-md-calendar_clock_outline"></span>Updated on ${lastModifiedDatetime}
+            </div>` : ''}
           </div>
           <div class="markdown-gutter">&nbsp;</div>
         </div>
