@@ -29,6 +29,7 @@ const md = new MarkdownIt({
   linkify: true, 
   typographer: true,
   highlight: function (str, lang) {
+    if (lang.indexOf("=") !== -1) lang = lang.replace("=", ""); // line numbers is not yet supported.
     if (lang && hljs.getLanguage(lang)) {
       try {
         return '<pre class="hljs"><code>' +
