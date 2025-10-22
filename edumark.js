@@ -9,6 +9,7 @@ import {createLandingPage, createViewPage, createErrorPage} from './templates.js
 import { readFile, stat } from 'fs/promises';
 import { join, normalize } from 'path';
 import hljs from 'highlight.js';
+import dayjs from 'dayjs';
 
 const app = express();
 // Load variables from '.env'
@@ -48,7 +49,6 @@ const md = new MarkdownIt({
     containerClass: "markdown-toc-list",
     containerId: "toc",
   });
-
 /**
  * Register a markdown-it container plugin for custom containers (info, warning, ...)
  *
@@ -75,7 +75,7 @@ registerContainer("warning", "Warning");
 registerContainer("danger", "Tip");
 registerContainer("success", "Success");
 
-// Homepage – list Markdown files
+// Homepage
 app.get("/", (req, res) => {
   res.send(createLandingPage());
 });
@@ -208,13 +208,13 @@ app.get('/view', async (req, res) => {
     // Encode each path segment to keep slashes between segments
     const urlPath = repoPath.split('/').map(encodeURIComponent).join('/');
     const url = `https://api.github.com/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${urlPath}?ref=${encodeURIComponent(branch)}`;
-
+    
     // Timeout support
     const controller = new AbortController();
     const timeoutMs = 10000; // 10s
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-    let response;
+    let response, lastModifiedDateTime;
     try {
       response = await fetch(url, {
         signal: controller.signal,
@@ -224,6 +224,9 @@ app.get('/view', async (req, res) => {
           'User-Agent': 'docs-sync'
         }
       });
+      
+      lastModifiedDateTime = dayjs(response.headers.get('last-modified')).format("D MMM YYYY [at] HH:mm");
+      // console.log("Last Modified:", lastModified.format("DD/MM/YYYY HH:mm:ss"));
     } catch (err) {
       if (err.name === 'AbortError') {
         return res.status(504).send(createErrorPage('GitHub API request timed out'));
@@ -240,7 +243,7 @@ app.get('/view', async (req, res) => {
       return res.status(response.status).send(createErrorPage('GitHub API error.'));
     }
     const markdown = await response.text();
-    const result = renderMarkdown(markdown);
+    const result = renderMarkdown(markdown, lastModifiedDateTime);
     return res.status(200).send(result.body);
   } catch (err) {
     console.log(err);
@@ -306,7 +309,7 @@ function parseTags(markdownContent){
  * @returns {{status: number, body: string}} An object containing the HTTP status code
  * and the rendered HTML string suitable for sending as an Express response body.
  */
-function renderMarkdown(markdownContent, filename = null) {
+function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) {
   // Find document tags and convert to html 
   const tags = parseTags(markdownContent);
   let tagsHtml = "";
@@ -378,12 +381,14 @@ function renderMarkdown(markdownContent, filename = null) {
               <img src="/edumark/logo.png"/>
               <span>EduMark</span>
             </div>
-
             ${tocHtml}
           </div>
           <div class="markdown-body">
             <div class="markdown-toc-tags">${tagsHtml}</div>
             ${htmlContent}
+            <div class="markdown-update-datetime">
+            <span class="nf nf-md-calendar_clock_outline"></span>Lecture Updated on ${lastModifiedDatetime}
+            </div>
           </div>
           <div class="markdown-gutter">&nbsp;</div>
         </div>

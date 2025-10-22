@@ -8,6 +8,9 @@
   --tag-font-size: x-small;
   --blockquote-border-color: #e4e4e7;
   --blockquote-text-color: #71717a;
+  --footer-font-size: 13px;
+  --update-datetime-font-size: 12px;
+  --footer-font-color: #71717a;
 }
 /* --- Global layout --- */
 body {
@@ -69,8 +72,8 @@ footer{
   justify-content: center;
   text-align: center;
   gap: 4px;
-  font-size: 13px;
-  color: #71717a; 
+  font-size: var(--footer-font-size);
+  color: var(--footer-font-color);
   padding-bottom: 18px;
 }
 
@@ -293,6 +296,14 @@ footer img{
   border-left-color: #ef4444;
 }
 
+.markdown-update-datetime{
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  gap: 2px;
+  color: var(--footer-font-color);
+  font-size: var(--update-datetime-font-size);
+}
 
 /* --- Marks (==Mark==) --- */
 mark{
