@@ -12,6 +12,7 @@ export function createPage(content = ''){
             <link rel="stylesheet" href="https://www.nerdfonts.com/assets/css/webfont.css">
             <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"> -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
         </head>
         <body>
         ${content}

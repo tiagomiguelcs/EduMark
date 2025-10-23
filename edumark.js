@@ -4,6 +4,7 @@ import mark from "markdown-it-mark";
 import container from "markdown-it-container";
 import anchor from "markdown-it-anchor";
 import toc from "markdown-it-toc-done-right";
+import tm from "markdown-it-texmath";
 import dotenv from 'dotenv';
 import {createLandingPage, createViewPage, createErrorPage} from './templates.js';
 import { readFile, stat } from 'fs/promises';
@@ -21,6 +22,7 @@ const SERVER_PORT = process.env.SERVER_PORT || 3131;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const GITHUB_REPO  = process.env.GITHUB_REPO;
+const PREVIEW      = process.env.PREVIEW;
 const PREVIEW_FOLDER = process.env.PREVIEW_FOLDER; // Place markdown documents in this folder to preview them.
 
 // Initialize Markdown parser with HTML enabled and necessary plugins
@@ -41,6 +43,11 @@ const md = new MarkdownIt({
   }
 })
   .use(mark)
+  .use(tm, {
+    engine: (await import('katex')).default,
+    delimiters: 'dollars',
+    katexOptions: { macros: { "\\RR": "\\mathbb{R}" } }
+  })
   .use(anchor, {
     permalink: anchor.permalink.headerLink(),
     slugify: s => encodeURIComponent(String(s).trim().toLowerCase().replace(/\s+/g, "-")),
