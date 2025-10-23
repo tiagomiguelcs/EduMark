@@ -141,6 +141,7 @@ app.get('/preview-check', async (req, res) => {
  *  GET /preview?filename=lecture-01.md
  */
 app.get('/preview', async (req, res) => {
+  if (PREVIEW == 0) return res.status(400).send(createErrorPage('Preview not available'));
   try {
     const filename = (req.query.filename || '').toString().trim();
     if (!filename) return res.status(400).send(createErrorPage('Filename is required'));
@@ -384,21 +385,21 @@ function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) 
   
   const body = createViewPage(`
         <div class="layout">
-          <div class="markdown-toc">
-            <div class="markdown-toc-logo" onclick="location.replace(location.href.split('#')[0])" style="cursor:pointer">
+          <div class="toc">
+            <div class="brand" onclick="location.replace(location.href.split('#')[0])" style="cursor:pointer">
               <img src="/edumark/logo.png"/>
               <span>EduMark</span>
             </div>
             ${tocHtml}
           </div>
-          <div class="markdown-body">
-            <div class="markdown-toc-tags">${tagsHtml}</div>
+          <div class="markdown">
+            <div class="tags">${tagsHtml}</div>
             ${htmlContent}
-            ${lastModifiedDatetime ? `<div class="markdown-update-datetime">
+            ${lastModifiedDatetime ? `<div class="datetime">
             <span class="nf nf-md-calendar_clock_outline"></span>Updated on ${lastModifiedDatetime}
             </div>` : ''}
           </div>
-          <div class="markdown-gutter">&nbsp;</div>
+          <div class="gutter">&nbsp;</div>
         </div>
         ${liveReloadScript}
   `);

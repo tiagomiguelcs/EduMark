@@ -1,62 +1,73 @@
 /* HackMD-like CSS Style */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;700&display=swap');
+
 :root{
-  --normal-font-size: 16px;
-  --large-font-size: 22px;
-  --toc-font-size: 11px;
-  --tag-background-color: #f7f7f7;
-  --tag-font-size: x-small;
-  --blockquote-border-color: #e4e4e7;
-  --blockquote-text-color: #71717a;
-  --footer-font-size: 13px;
-  --update-datetime-font-size: 12px;
-  --footer-font-color: #71717a;
-  --code-font-size: small;
-  --code-background-color: #f4f4f5;
+  /* Colors */
+  --ligther-gray: #f4f4f5;
+  --light-gray: #71717a4d;
+  --dark-gray: #71717a;
+  --darker-gray: #2b2b2b;
+  --light-blue: #1a73e8;
+  --light-background: #fff;
+  --dark-background: #f8f9fa;
+  --light-red: #f2dede;
+  --dark-red: #a94442;
+  /* --- Body or Document --- */
+  --document-font-size: 100%; /* by browser default 100% = 16px */
+  --document-font-color: var(--darker-gray);
+  --document-text-align: justify;
+  --document-line-height: 1.7;
+  --document-background-color: var(--dark-background);
+  --document-lists-line-height: 1.8;
+  /* --- Footer --- */
+  --footer-font-size: 0.8rem; /* 1rem = 16px, 0.8 * 16 = 12.8px */
+  --footer-font-color: var(--dark-gray);
+  /* --- Layout --- */
+  --layout-max-width: 100%;
+  /* --- TOC --- */
+  --toc-font-size: 0.687rem; /* ~11px */
+  --toc-font-color: var(--dark-gray);
+  /* --- Brand --- */
+  --brand-font-size: 1rem; 
+  /* --- Markdown --- */
+  --markdown-background-color: var(--light-background);
+  /* --- Code and Tags--- */
+  --code-font-size: 0.805rem;
+  --tags-font-size: 0.6rem;
 }
-/* --- Global layout --- */
-body {
+
+html, body{height: 100vh;width: 100vw;}
+body{
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--document-font-size);
+  color: var(--document-font-color);
+  text-align: var(--document-text-align);
+  line-height: var(--document-line-height);
+  background-color: var(--document-background-color);
   margin: 0;
   padding: 0;
-  color: #2b2b2b;
-  background: #f8f9fa;
-  font-size: var(--normal-font-size);
-  text-align: justify;
 }
 
-/* --- Pre and code --- */
-pre{
-  max-width: 100%;
-  font-size: var(--code-font-size);
-  border: 1px solid #e4e4e7;
-  padding: 4px;
-  overflow-x: auto;
-  /* background-color: var(--code-background-color); */
+footer{
+  font-size: var(--footer-font-size);
+  color: var(--footer-font-color);
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 18px;
+  /* border: 1px solid red; */
 }
 
-/* Inline code (not being inside pre) */
-:not(pre) > code{
-  background-color: var(--code-background-color);
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-size: 0.9em;
-  font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+footer a{
+  text-decoration: none;
+  color: var(--footer-font-color);
 }
 
-/* --- Emphasis (italic) --- */
-em{
-  font-style: italic;
-  color: inherit;
-}
-
-/* --- blockquote --- */
-blockquote{
-  border-left: 5px solid var(--blockquote-border-color);
-  padding-left: 8px;
-  margin: 0px;
-  color: var(--blockquote-text-color);
-  max-width: 100%;
+footer img{
+  width: var(--footer-font-size);
+  height: var(--footer-font-size);
+  filter: grayscale(1);
 }
 
 .landing{
@@ -68,14 +79,15 @@ blockquote{
   height: 100vh;
   width: 100%;
   font-size: var(--large-font-size);
-  color: #2b2b2b;  
+  color: var(--darker-gray);
   font-weight: bold;
   box-sizing: border-box;
+  color: var(--dark-gray);
 }
 
 .landing a{
   text-decoration: none;
-  color: #9c9c9c;
+  color: inherit;
 }
 
 .landing > div:last-child{
@@ -83,222 +95,195 @@ blockquote{
   align-items: center;
   gap: 4px;
   font-weight: normal;
-  font-size: small;
-  color: #9c9c9c;
+  font-size: var(--footer-font-size);
+  color: inherit;
 }
 
 .error{
   display:block;
-  background-color:#f2dede;
+  background-color: var(--light-red);
   padding:10px;
   border-radius:5px;
-  color:#a94442;
-  font-size:14px
-}
-
-footer{
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  gap: 4px;
-  font-size: var(--footer-font-size);
-  color: var(--footer-font-color);
-  padding-bottom: 18px;
-}
-
-footer a{
-  text-decoration: none;
-  color: #71717a; 
-}
-
-footer img{
-  width: 1.3em;
-  height: auto;
-  filter: grayscale(1);
+  color:var(--dark-red);
 }
 
 .layout{
-  max-width: 1200px;
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr) 100px;
-  padding: 18px 0px;
-  /* border: 1px solid red; */
+  grid-template-columns: 200px minmax(0, 1fr) 200px;
+  padding: 18px 0px; /* top/bottom right/left */
   margin: 0 auto;
+  max-width: 1200px;
+  /* border: 1px solid red; */
+}
+/* -------------------------------------- */
+.brand{
+  display: flex;
+  gap: 4px;
+  padding: 4px 0px;
+  margin-bottom: 8px;
+  align-items: center;
+  font-weight: bold;
+  font-size: var(--brand-font-size);
+  border-bottom: 1px solid var(--light-gray);
 }
 
-.markdown-gutter{
-  grid-column: 3;
+.brand img{
+  width: 2.2rem;
+  height: auto;
 }
-
-.markdown-toc{
+/* -------------------------------------- */
+.toc{
   grid-column: 1;
-  line-height: 1.8;
+  padding: 0px 8px;
   font-size: var(--toc-font-size);
+  margin-left: 10px;
   position: sticky;
   top: 20px;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+  /* border: 1px solid yellow; */
 }
 
-.markdown-toc-logo{
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  margin: 0px 26px 8px 4px;
-  padding-bottom: 5px;
-  font-weight: bold;
-  overflow: hidden;
-  color: #2b2b2bf4;
-  border-bottom: 1px solid #71717a4d !important;
-  font-size:large;
-}
-
-/* pill like tags */
-.markdown-toc-tags{
-  display: flex;
-  justify-content: right;
-	gap: 8px;
-	width: 100%;
-  flex-wrap: wrap;
-  padding-top: 8px;
-  border: 0px solid red;
-}
-/* Tag */
-.markdown-toc-tags div{
-	gap: 4px;
-  font-size: var(--tag-font-size);
-	border-radius: 12px;
-  padding: 4px 6px;
-	background: var(--tag-background-color);
-  color: #2b2b2bf4;
-  font-weight: bold;
-	/* color: #2f3947; */
-  /* color: var(--dashboard-pill-text-color); */
-	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .08);
-}
-
-.markdown-toc-logo img{
-  width: 2.2rem;
-  height: auto;
-}
-
-.markdown-toc a{
+.toc a{
   text-decoration: none;
-  color: #71717a;
-  width: 95%;
-  display: block;               
-  white-space: nowrap;        
-  overflow: hidden;          
+  color: var(--toc-font-color);
+  /* Add (...) to larger section names */
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 4px;   
 }
 
-.markdown-toc a:hover{
+.toc a:hover{
   font-weight: bold;
 }
 
-.markdown-toc ol,
-.markdown-toc ul{
-  border: 0px solid red;
+.toc ol,
+.toc ul{
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.markdown-toc ul ul{
-  padding-left: 10px;
-}
 
-.markdown-body {
+.toc ul ul{
+  padding-left: 10px; /* Add left padding for nested uls */
+}
+/* -------------------------------------- */
+.markdown{
   grid-column: 2;
-  line-height: 1.7;
-  font-size: 100%;
-  /* width: 100%; */
-  max-width: 800px;
-  /* margin: 40px auto; */
-  background: #fff;
-  padding: 4px 40px;
-  border-radius: 10px;
+  background-color: var(--markdown-background-color);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 1px 20px;
+  /* border: 1px solid red; */
 }
 
-.markdown-body img{
+.markdown a{
+  text-decoration: none;
+  color: var(--light-blue);
+}
+.markdown a:hover{text-decoration: underline;}
+/* Links inside headings should inherit the heading style and not use the default link color */
+.markdown h1 a,
+.markdown h2 a,
+.markdown h3 a,
+.markdown h4 a,
+.markdown h5 a,
+.markdown h6 a { color: inherit; border: 0;}
+.markdown h1 a:hover,
+.markdown h2 a:hover,
+.markdown h3 a:hover,
+.markdown h4 a:hover,
+.markdown h5 a:hover,
+.markdown h6 a:hover {text-decoration: none;}
+
+.markdown pre,
+.markdown pre code,
+.markdown img{
   max-width: 100%;
 }
 
-.markdown-body h1,
-.markdown-body h2, 
-.markdown-body h3, 
-.markdown-body h4 {
-  border-bottom: 1px solid #eaecef;
+.markdown h1,
+.markdown h2, 
+.markdown h3, 
+.markdown h4 {
+  border-bottom: 1px solid var(--light-gray);
   padding-bottom: 0.3em;
   text-align: left;
 }
+.markdown h1 { font-size: 1.5em; }
+.markdown h2 { font-size: 1.25em; }
+.markdown h3 { font-size: 1.1em; }
 
-.markdown-body h1{
-  font-size: 1.5em;
-}
-.markdown-body h2{
-  font-size: 1.25em;
-}
-.markdown-body h3{
-  font-size: 1.1em;
-}
-
-.markdown-body ul, 
-.markdown-body ol {
+.markdown ul,
+.markdown ol {
   padding-left: 2em;
+  line-height: var(--document-lists-line-height);
 }
 
-.markdown-body table{
-  border-spacing: 0;
-    line-height: 1.7;
+.markdown table {
+  border-spacing: 0px;
+  border-collapse: separate;
+  padding: 8px 0px;
 }
-
-.markdown-body table th,
-.markdown-body table td{
+.markdown table th, 
+.markdown table td{
   padding: 6px 13px;
-  border: 1px solid #e4e4e7;
+  border: 1px solid var(--ligther-gray);
+}
+.markdown table th{ 
+  text-align: center;
+  background: var(--light-gray);
 }
 
-.markdown-body table th{
-  background: #f4f4f5;
+.markdown pre{
+  font-size: var(--code-font-size);
+  padding: 4px; 
+  /* break words to the next line */
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid var(--light-gray);
+  border-radius: 2px;
+  
+}
+.markdown :not(pre) > code{
+  font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+  background-color: var(--ligther-gray);
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: var(--code-font-size);
 }
 
-.markdown-body a{
-  color: #1a73e8;
-  text-decoration: none;
+.markdown em{font-style: italic;}
+
+.markdown blockquote{
+  padding: 0px 4px;
+  border-left: 2.5px solid var(--light-gray);
+  margin: 0;
+  color: var(--dark-gray);
+}
+.markdown blockquote > ol,
+.markdown blockquote > ul{
+  padding-left: 2em;
+  line-height: calc(var(--document-lists-line-height) - 0.3);
+  margin: 0;
 }
 
-.markdown-body a:hover{
-  text-decoration: underline;
+.markdown mark{
+  background: #fef7dd;
+  color: #f6a323;
+  padding: 2px;
+  border-radius: 2px;
 }
-
-/* Links inside headings should inherit the heading style and not use the default link color */
-.markdown-body h1 a,
-.markdown-body h2 a,
-.markdown-body h3 a,
-.markdown-body h4 a,
-.markdown-body h5 a,
-.markdown-body h6 a {
-  color: inherit;
-  text-decoration: none;
+/* -------------------------------------- */
+.gutter{
+  grid-column: 3;
+  /* border: 1px solid blue; */
 }
-
-.markdown-body h1 a:hover,
-.markdown-body h2 a:hover,
-.markdown-body h3 a:hover,
-.markdown-body h4 a:hover,
-.markdown-body h5 a:hover,
-.markdown-body h6 a:hover {
-  text-decoration: none; 
-  cursor: text;
-}
-
-/* --- containers (:::info etc.) --- */
+/* -------------------------------------- */
 .container{
   border-radius: 6px;
   padding: 2px 15px; /* top/bottom left/right */
-  margin: 20px 0;
+  margin: 12px 0;
 }
 
 .container.success{
@@ -324,53 +309,59 @@ footer img{
   color: #ef4444;
   border-left-color: #ef4444;
 }
-
-.markdown-update-datetime{
+/* -------------------------------------- */
+.datetime{
   display: flex;
   justify-content: right;
-  align-items: center;
+  align-items: baseline;
   gap: 2px;
   color: var(--footer-font-color);
-  font-size: var(--update-datetime-font-size);
+  font-size: var(--footer-font-size);
+}
+/* -------------------------------------- */
+.tags{
+  display: flex;
+  justify-content: right;
+	gap: 8px;
+	width: 100%;
+  flex-wrap: wrap;
+  padding-top: 8px;
+}
+.tags div{
+  border-radius: 2px;
+  padding: 4px 6px;
+  background-color: #c4c4c432;
+  font-size: var(--tags-font-size);
+  color: var(--dark-gray);
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .08);
 }
 
-/* --- Marks (==Mark==) --- */
-mark{
-  background: #fef7dd;
-  color: #f6a323;
-  padding: 3.2px;
-}
-
-
-/* Responsive: hide TOC and collapse to single column when viewport is narrow (or user zooms in) */
-@media (max-width: 1536px) {
-  .markdown-toc {
-    display: none;
+/* Mobile-first: ajustar layout para ecrãs pequenos */
+@media (max-width: 1024px) {
+  body{background-color: #fff;}
+  /* body{background-color: yellow;} */
+  .layout{
+    background-color: #fff;
+    grid-template-columns: 1fr;
+    padding: 0px 20px; 
+    margin: 0;
   }
-
-  .layout {
-    grid-template-columns: 1fr; /* single column */
-    padding: 18px;
-    max-width: 100%;
-  }
-
-  .markdown-body {
+  .markdown{
     grid-column: 1;
-    margin: 20px auto;
-    padding: 12px;
-    max-width: 98%;
-    width: 100%;
-    box-sizing: border-box;
+    box-shadow: none;
+    padding: 0;
+    border: 0;
   }
-  
-  .markdown-body pre {
-    max-width: 100%;
-    overflow-x: auto;
-    box-sizing: border-box;
-  }
-  
-  .markdown-body pre code{
-    max-width: 100%;
-    display: block;
-  }
+  .markdown img{ max-width: 80%;}
+  .toc, .gutter, .tags{display: none;}
 }
+
+/* Tablets / small desktops: two grid columns only 
+@media (min-width: 769px) and (max-width: 1200px) { }
+*/
+
+/* Desktop: all visible tudo visível
+@media (min-width: 1201px) { }
+ */
