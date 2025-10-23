@@ -341,7 +341,6 @@ footer img{
 /* Mobile view */
 @media (max-width: 1024px) {
   body{background-color: #fff;}
-  /* body{background-color: yellow;} */
   .layout{
     background-color: #fff;
     grid-template-columns: 1fr;
@@ -359,6 +358,29 @@ footer img{
     background-color: var(--dark-background);
   }
 
+  .markdown img{ max-width: 80%;}
+  .toc, .gutter, .tags{display: none;}
+}
+
+/* Print view */
+@media print{
+  body{background-color: #fff;}
+  .layout{
+    background-color: #fff;
+    grid-template-columns: 1fr;
+    padding: 0;
+    margin: 0;
+  }
+  .markdown{
+    grid-column: 1;
+    width: 100vw;
+    box-shadow: none;
+    padding: 0;
+    border: 0;
+  }
+  footer{
+    padding-bottom: 4px; 
+  }
   .markdown img{ max-width: 80%;}
   .toc, .gutter, .tags{display: none;}
 }
