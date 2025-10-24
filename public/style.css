@@ -27,13 +27,12 @@
   /* --- TOC --- */
   --toc-font-size: 0.687rem; /* ~11px */
   --toc-font-color: var(--dark-gray);
-  /* --- Brand --- */
+  /* --- Brand, markdown, code, tags and containers --- */
   --brand-font-size: 1rem; 
-  /* --- Markdown --- */
   --markdown-background-color: var(--light-background);
-  /* --- Code and Tags--- */
   --code-font-size: 0.805rem;
   --tags-font-size: 0.6rem;
+  --container-font-size: 100%;
 }
 
 html, body{height: 100vh;max-width: 100vw;}
@@ -340,7 +339,14 @@ footer img{
 
 /* Mobile view */
 @media (max-width: 1024px) {
-  body{background-color: #fff;}
+  /* Prevent mobile browsers from automatically zooming in on small text (e.g., input fields, small fonts) */ 
+  html {
+    -webkit-text-size-adjust: 100%; /* iOS Safari, Chrome/WebView (WebKit) */
+    text-size-adjust: 100%;  /* Standard / Firefox Android, etc. */
+  }
+  body{
+    background-color: #fff;
+  }
   .layout{
     background-color: #fff;
     grid-template-columns: 1fr;
@@ -353,18 +359,16 @@ footer img{
     padding: 0;
     border: 0;
   }
-  footer{
-    padding-bottom: 4px; 
-    background-color: var(--dark-background);
-  }
-
+  /* footer{padding-bottom: 4px; background-color: var(--dark-background);} */
   .markdown img{ max-width: 80%;}
   .toc, .gutter, .tags{display: none;}
 }
 
 /* Print view */
 @media print{
-  body{background-color: #fff;}
+  body{
+    background-color: #fff;
+  }
   .layout{
     background-color: #fff;
     grid-template-columns: 1fr;
