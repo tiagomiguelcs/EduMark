@@ -201,6 +201,11 @@ footer img{
   max-width: 100%;
 }
 
+.markdown sub{
+  display: inline-block;
+  text-align: justify;
+}
+
 .markdown h1,
 .markdown h2, 
 .markdown h3, 
