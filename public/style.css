@@ -305,14 +305,29 @@ footer img{
 .container.warning{
   background-color: #fef3c799;
   color: #f59e0b;
-  border-left-color: #f59e0b;
+  border-left: 4px solid #f59e0b;
 }
 
 .container.danger{
   background-color: #fee2e299;
   color: #ef4444;
-  border-left-color: #ef4444;
+  border-left: 4px solid #ef4444;
 }
+
+.container.references{
+  display: flex;
+  justify-content: center;
+  padding: 8px 15px;
+  align-items: center;
+  background-color: #f8f9fa;
+  color: var(--dark-gray);
+  font-size: 0.8rem;
+  border-left: 4px solid var(--dark-gray);
+}
+.container.references > span { font-weight: bold; writing-mode: sideways-lr;}
+.container.references > ul {margin: 0;}
+.container.references a {color: var(--dark-gray);}
+
 /* -------------------------------------- */
 .datetime{
   display: flex;
