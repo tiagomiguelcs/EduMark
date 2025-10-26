@@ -11,6 +11,9 @@ import { readFile, stat } from 'fs/promises';
 import { join, normalize } from 'path';
 import hljs from 'highlight.js';
 import dayjs from 'dayjs';
+import fs from 'fs';
+
+import { get } from "http";
 
 const app = express();
 // Load variables from '.env'
@@ -24,6 +27,7 @@ const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const GITHUB_REPO  = process.env.GITHUB_REPO;
 const PREVIEW      = process.env.PREVIEW;
 const PREVIEW_FOLDER = process.env.PREVIEW_FOLDER; // Place markdown documents in this folder to preview them.
+const CACHE_DIRECTORY = process.env.CACHE_DIRECTORY || "cache";
 
 // Initialize Markdown parser with HTML enabled and necessary plugins
 const md = new MarkdownIt({ 
@@ -174,7 +178,6 @@ app.get('/preview', async (req, res) => {
  * Retrieve a Markdown file from the configured GitHub repository and render it as HTML.
  *
  * Query parameters:
- *  - lecture {string} (required) : Lecture number (digits). Used to build repository path `Theoretical/Lecture-XX`.
  *  - filename {string} (required) : Base filename of the Markdown file (must end in .md). Directory traversal is disallowed.
  *  - branch {string} (optional)  : Git branch or ref to fetch from (defaults to 'main').
  *
@@ -187,15 +190,11 @@ app.get('/preview', async (req, res) => {
  */
 app.get('/view', async (req, res) => {
   try { 
-    // Example: /sync?lecture=5&filename=VCD-Lecture-05.md&branch=main
-    // NOTE: keep `base` without a leading slash so we don't introduce %2F at the start.
-    const base = 'Theoretical/Lecture-0';
-    const lecture = (req.query.lecture || '1').toString().trim(); // Lecture Number
+    // Example: /view?filename=VCD-Lecture-05.md&branch=main
     let filename = (req.query.filename || '').toString().trim();
     const branch = (req.query.branch || req.query.ref || 'main').toString().trim();
 
     // Basic validation
-    if (!lecture.match(/^\d+$/)) return res.status(400).send(createErrorPage('Invalid lecture number'));
     if (!filename) return res.status(400).send(createErrorPage('Filename is required'));
     if (!branch) return res.status(400).send(createErrorPage('Branch/ref is required'));
 
@@ -208,8 +207,50 @@ app.get('/view', async (req, res) => {
       return res.status(400).send(createErrorPage('Filename must be a .md file with a safe name'));
     }
 
+    // Resolve the file path dynamically without hardcoding directories - Get repo tree from cache, or retrieve tree if not locally available, then get filename path if available.
+    let filePaths=undefined;
+    let DEBUG=false;
+    try {
+      let cacheFile = `${CACHE_DIRECTORY}/${branch}.json`;
+      if (DEBUG) console.log(`Using '${cacheFile}'....`)
+
+      // 1. Check if the cache file exists
+      let cacheData = undefined;
+      try{
+        cacheData = JSON.parse(await fs.promises.readFile(cacheFile, 'utf-8'));
+        if (DEBUG) console.log(`Cache file contents retrieved.`);
+        //console.log(`Cache file contains: ${cacheData}`);
+      }catch(err){}
+     
+      // 2. If cache file is undefined (does not exist), fetch the tree from GitHub
+      if (cacheData===undefined){
+        if (DEBUG) console.log(`Cache file not found, creating one...`);
+        let fileMap = await getTree(branch);
+        await fs.promises.writeFile(cacheFile, JSON.stringify(Array.from(fileMap.entries())));
+        if (DEBUG) console.log(`Created cache file for branch '${branch}'`);
+        cacheData = JSON.parse(await fs.promises.readFile(cacheFile, 'utf-8'));
+        if (DEBUG) console.log(`Cache file contents retrieved.`);
+      }
+
+      // 3. Get the list of paths for the requested filename
+      for(let i=0; i < cacheData.length; i++){
+        let fn = cacheData[i][0];
+        if (fn === filename){
+          filePaths = cacheData[i][1];
+          if (DEBUG) console.log(`Found '${fn}' in the following path(s): (${filePaths})`)
+          break;
+        }
+      }
+      if (filePaths===undefined) return res.status(404).send(createErrorPage('File not found'));
+
+    } catch (err) {
+      return res.status(response.status).send(createErrorPage('GitHub API error.'));
+      // console.error("GitHub API error:", err);
+    }
+    
+
     // Build repository path and guard again for traversal
-    const repoPath = `${base}${lecture}/${filename}`;
+    const repoPath = filePaths[0];
     if (repoPath.includes('..')) return res.status(400).send(createErrorPage('Invalid path'));
 
     // Ensure GitHub configuration is present
@@ -244,7 +285,7 @@ app.get('/view', async (req, res) => {
       if (err.name === 'AbortError') {
         return res.status(504).send(createErrorPage('GitHub API request timed out'));
       }
-      console.error('Fetch error in /view:', err);
+      // console.error('Fetch error in /view:', err);
       return res.status(502).send(createErrorPage('Error fetching from GitHub'));
     } finally {
       clearTimeout(timeout);
@@ -259,7 +300,7 @@ app.get('/view', async (req, res) => {
     const result = renderMarkdown(markdown, lastModifiedDateTime);
     return res.status(200).send(result.body);
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return res.status(500).send(createErrorPage('Internal Server Error'));
   }
 });
@@ -305,7 +346,7 @@ function parseTags(markdownContent){
       }
     }
   } catch (error) {
-    console.error("Unable to fetch tags, use syntax: tags: tag1, tag2, ...");
+    // console.error("Unable to fetch tags, use syntax: tags: tag1, tag2, ...");
     return([]);
   }
   return([]);
@@ -409,6 +450,52 @@ function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) 
   `);
   return { status: 200, body };
 }
+
+/**
+ * Fetches the full file tree for a GitHub repository and branch using the Trees API.
+ * Caches the result for fast filename lookups.
+ *
+ * @param {string} branch - The branch or ref to fetch (defaults to 'main').
+ * @returns {Promise<Map<string, string[]>>} Map of filename to array of full paths.
+ * @throws {Error} If the API request fails.
+ */
+async function getTree(branch = 'main') {
+  const treeUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${encodeURIComponent(branch)}?recursive=1`;
+  const controller = new AbortController();
+  const timeoutMs = 15000;
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(treeUrl, {
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'edumark'
+      }
+    });
+    if (!response.ok) throw new Error(`GitHub Trees API error: ${response.status}`);
+    const data = await response.json();
+    if (!data.tree) throw new Error('No tree data found');
+    // Build filename-to-path map
+    const fileMap = new Map();
+    for (const item of data.tree) {
+      if (item.type === 'blob') {
+        const fname = item.path.split('/').pop();
+        if (!fileMap.has(fname)) fileMap.set(fname, []);
+        fileMap.get(fname).push(item.path);
+      }
+    }
+    return fileMap;
+  } catch (err) {
+    // console.error('getTree error:', err);
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+
 
 app.listen(SERVER_PORT, () => {
   console.log(`EduMark Server running at http://localhost:${SERVER_PORT}/`);

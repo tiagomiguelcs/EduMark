@@ -1,4 +1,5 @@
 docs/*
+cache/*.json
 logs
 *.log
 npm-debug.log*

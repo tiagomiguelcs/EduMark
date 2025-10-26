@@ -1,6 +1,6 @@
 {
   "name": "edumark",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "designation": "alpha",
   "main": "edumark.js",
   "type": "module",
