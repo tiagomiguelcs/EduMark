@@ -1,5 +1,4 @@
 # EduMark
-
 <p align="center">
   <img style="width:148px; height:auto" src="public/logo.png"/><br/>
   <b>EduMark - Educational Markdown Viewer</b>
@@ -8,15 +7,14 @@
 EduMark is a small Markdown viewer for educational environments that can render Markdown files hosted in a GitHub repository and present them with a table-of-contents and a simple layout.
 
 **Features:**
-- Render Markdown with `markdown-it` and useful plugins (anchors, TOC, marks, containers).
-- Fetch Markdown files directly from a GitHub repo (by lecture number / filename / branch).
+- **Render Markdown **with `markdown-it` and useful plugins (anchors, TOC, marks, containers).
+- **Fetch Markdown files** directly from a GitHub repo (by filename and branch).
 - **Live preview mode** for local Markdown files with auto-reload on file changes.
-- Syntax highlighting for code blocks (via highlight.js).
-- Custom containers (info, warning, danger, success).
+- **Syntax highlightin**g for code blocks (via highlight.js).
+- **Custom containers** (info, warning, danger, success, and references).
 - Lightweight, single-file server (`edumark.js`).
 
 ## Quick Start
-
 Prerequisites
 - Node.js 18+ recommended.
 - GitHub personal access token (if you plan to fetch files from a private repo).
@@ -46,19 +44,16 @@ npm run deploy
 ### 1. View Markdown from GitHub Repository
 Render Markdown files stored in your GitHub repository:
 ```
-GET /view?lecture=<number>&filename=<file.md>&branch=<branch>
+GET /view?filename=<file.md>&branch=<branch>
 ```
-**Example:**
-```
-http://localhost:3131/view?lecture=5&filename=VCD-Lecture-05.md&branch=main
-```
-
-**Notes:**
-- `lecture` is expected to be digits (e.g. `1`, `5`, `04`). The server builds the repo path like `Theoretical/Lecture-0X/filename` internally.
-- `filename` must be a safe base filename (no path separators, must end with `.md`). Directory traversal attempts are blocked.
+- `filename` must be a safe base filename (no path separators, must end with `.md`).
 - `branch` defaults to `main` if omitted.
 - The server expects `GITHUB_OWNER`, `GITHUB_REPO` and (for private repos) `GITHUB_TOKEN` to be set in environment.
-- Displays the last modification date from GitHub.
+
+**Example:**
+```
+http://localhost:3131/view?filename=LP-Lecture-01.md&branch=main
+```
 
 ### 2. Preview Local Markdown Files (with Live Reload)
 Preview Markdown files from your local filesystem with automatic reload when the file changes:
@@ -83,4 +78,4 @@ http://localhost:3131/preview?filename=lecture-notes.md
 - `filename` must be just the filename (no paths), ending with `.md`.
 - The file must exist in the `PREVIEW_FOLDER` directory.
 - Live reload checks for file changes every 2 seconds.
-- Perfect for writing and previewing lecture notes in real-time.
+- Perfect for writing and previewing lecture notes in real-time before a push to a repo.
