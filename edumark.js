@@ -13,8 +13,6 @@ import hljs from 'highlight.js';
 import dayjs from 'dayjs';
 import fs from 'fs';
 
-import { get } from "http";
-
 const app = express();
 // Load variables from '.env'
 dotenv.config();
@@ -207,47 +205,61 @@ app.get('/view', async (req, res) => {
       return res.status(400).send(createErrorPage('Filename must be a .md file with a safe name'));
     }
 
-    // Resolve the file path dynamically without hardcoding directories - Get repo tree from cache, or retrieve tree if not locally available, then get filename path if available.
+    // Resolve the file path dynamically without hardcoding directories 
+    // - Get repo tree from cache, or retrieve tree if not locally available, 
+    //   then get filename path(s) if available.
     let filePaths=undefined;
     let DEBUG=false;
-    try {
-      let cacheFile = `${CACHE_DIRECTORY}/${branch}.json`;
-      if (DEBUG) console.log(`Using '${cacheFile}'....`)
+    try{
+      let attempts=0;
+      do{
+        let cacheFile = `${CACHE_DIRECTORY}/${branch}.json`;
+        if (DEBUG) console.log(`Attempt '${attempts}' -> '${cacheFile}'`);
 
-      // 1. Check if the cache file exists
-      let cacheData = undefined;
-      try{
-        cacheData = JSON.parse(await fs.promises.readFile(cacheFile, 'utf-8'));
-        if (DEBUG) console.log(`Cache file contents retrieved.`);
-        //console.log(`Cache file contains: ${cacheData}`);
-      }catch(err){}
-     
-      // 2. If cache file is undefined (does not exist), fetch the tree from GitHub
-      if (cacheData===undefined){
-        if (DEBUG) console.log(`Cache file not found, creating one...`);
-        let fileMap = await getTree(branch);
-        await fs.promises.writeFile(cacheFile, JSON.stringify(Array.from(fileMap.entries())));
-        if (DEBUG) console.log(`Created cache file for branch '${branch}'`);
-        cacheData = JSON.parse(await fs.promises.readFile(cacheFile, 'utf-8'));
-        if (DEBUG) console.log(`Cache file contents retrieved.`);
-      }
-
-      // 3. Get the list of paths for the requested filename
-      for(let i=0; i < cacheData.length; i++){
-        let fn = cacheData[i][0];
-        if (fn === filename){
-          filePaths = cacheData[i][1];
-          if (DEBUG) console.log(`Found '${fn}' in the following path(s): (${filePaths})`)
-          break;
+        // 1. Check if the cache file exists
+        let cacheData = undefined;
+        try{
+          cacheData = JSON.parse(await fs.promises.readFile(cacheFile, 'utf-8'));
+          if (DEBUG) console.log(` > Cache file contents retrieved.`);
+          // console.log(` > Cache file contains: ${cacheData}`);
+        }catch(err){}
+      
+        // 2. If cache file is undefined (i.e., does not exist), fetch the tree from GitHub
+        //    and save the result into a cache file stored locally
+        if (cacheData===undefined){
+          if (DEBUG) console.log(` > Cache file not found, creating one...`);
+          let fileMap = await getTree(branch);
+          await fs.promises.writeFile(cacheFile, JSON.stringify(Array.from(fileMap.entries())));
+          if (DEBUG) console.log(` > Created cache file for branch '${branch}'`);
+          cacheData = JSON.parse(await fs.promises.readFile(cacheFile, 'utf-8'));
+          if (DEBUG) console.log(` > Cache file contents retrieved.`);
         }
-      }
-      if (filePaths===undefined) return res.status(404).send(createErrorPage('File not found'));
 
-    } catch (err) {
+        // 3. Get the list of paths for the requested filename
+        for(let i=0; i < cacheData.length; i++){
+          let fn = cacheData[i][0];
+          if (fn === filename){
+            filePaths = cacheData[i][1];
+            if (DEBUG) console.log(` > Found '${fn}' in the following path(s): (${filePaths})`)
+            break;
+          }
+        }
+        // 4. If the file isn’t found, it might be newly added while the cache is outdated.
+        //    In that case, refresh the cache and try locating the file again.
+        if (filePaths===undefined && attempts === 1){
+          if (DEBUG) console.log(` > File not found`);
+          return res.status(404).send(createErrorPage('File not found'));
+        }
+        if (attempts===1 || filePaths !== undefined) break;
+        // Remove a potentially old cache file to be refetched in the next attempt. 
+        if (DEBUG) console.log(` > File was not found, refreshing the cache file in an attempt to find the file`)
+        attempts = attempts + 1;
+        await fs.promises.rm(cacheFile);
+      }while(attempts <= 1);
+    }catch (err){
+      console.error("GitHub API error:", err);
       return res.status(response.status).send(createErrorPage('GitHub API error.'));
-      // console.error("GitHub API error:", err);
     }
-    
 
     // Build repository path and guard again for traversal
     const repoPath = filePaths[0];
@@ -300,7 +312,7 @@ app.get('/view', async (req, res) => {
     const result = renderMarkdown(markdown, lastModifiedDateTime);
     return res.status(200).send(result.body);
   } catch (err) {
-    // console.log(err);
+    console.log(err);
     return res.status(500).send(createErrorPage('Internal Server Error'));
   }
 });
