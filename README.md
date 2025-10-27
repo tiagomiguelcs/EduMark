@@ -9,7 +9,7 @@ EduMark is a small Markdown viewer for educational environments that can render 
 **Features:**
 - **Render Markdown** with `markdown-it` and useful plugins (anchors, TOC, marks, containers).
 - **Fetch Markdown files** directly from a GitHub repo (by filename and branch).
-- **Live preview mode** for local Markdown files with auto-reload on file changes.
+- **Live preview mode** for local Markdown files with automatic reload on changes, ideal for writing and previewing lecture notes in real time before pushing them to a repository.
 - **Syntax highlightin**g for code blocks (via highlight.js).
 - **Custom containers** (info, warning, danger, success, and references).
 - **Lightweight**, single-file server (`edumark.js`).
@@ -60,6 +60,5 @@ http://localhost:3131/preview?filename=<file.md>
 - `filename` must be just the filename (no paths), ending with `.md`.
 - The file must exist in the `PREVIEW_FOLDER` directory.
 - Live reload checks for file changes every 2 seconds.
-- Perfect for writing and previewing lecture notes in real-time before a push to a repo.
 
 **Example:** `http://localhost:3131/preview?filename=LP-Lecture-02.md`
