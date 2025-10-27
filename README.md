@@ -4,7 +4,7 @@
   <b>EduMark - Educational Markdown Viewer</b>
 </p>
 
-EduMark is a small Markdown viewer for educational environments that can render Markdown files hosted in a GitHub repository and present them with a table-of-contents and a simple layout.
+**EduMark** is a lightweight Markdown viewer designed for educational settings. It renders Markdown files directly from GitHub repositories and presents them with a clean layout and an interactive table of contents, perfect for teaching, lectures, and note-based presentations.
 
 **Features:**
 - **Render Markdown** with `markdown-it` and useful plugins (anchors, TOC, marks, containers).
