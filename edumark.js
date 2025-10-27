@@ -191,7 +191,8 @@ app.get('/view', async (req, res) => {
     // Example: /view?filename=VCD-Lecture-05.md&branch=main
     let filename = (req.query.filename || '').toString().trim();
     const branch = (req.query.branch || req.query.ref || 'main').toString().trim();
-
+    const cacheFile = `${CACHE_DIRECTORY}/${branch}.json`;
+        
     // Basic validation
     if (!filename) return res.status(400).send(createErrorPage('Filename is required'));
     if (!branch) return res.status(400).send(createErrorPage('Branch/ref is required'));
@@ -213,7 +214,6 @@ app.get('/view', async (req, res) => {
     try{
       let attempts=0;
       do{
-        let cacheFile = `${CACHE_DIRECTORY}/${branch}.json`;
         if (DEBUG) console.log(`Attempt '${attempts}' -> '${cacheFile}'`);
 
         // 1. Check if the cache file exists
@@ -263,6 +263,7 @@ app.get('/view', async (req, res) => {
 
     // Build repository path and guard again for traversal
     const repoPath = filePaths[0];
+    console.log(repoPath);
     if (repoPath.includes('..')) return res.status(400).send(createErrorPage('Invalid path'));
 
     // Ensure GitHub configuration is present
@@ -304,8 +305,15 @@ app.get('/view', async (req, res) => {
     }
 
     if (!response.ok) {
-      // const msg = await response.text().catch(() => '');
+      const msg = await response.text().catch(() => '');
       // return res.status(response.status).send(`GitHub API error (${response.status}): ${msg}`);
+      console.error(`GitHub API error (${response.status}): ${msg}`)
+      if (response.status == 404){ // File was not found, maybe outdated cached version exists locally.
+        // Remove cache file and recall endpoint to fetch a new version
+        await fs.promises.rm(cacheFile);
+        // Recall this endpoint once more
+        return res.redirect(req.originalUrl);
+      }
       return res.status(response.status).send(createErrorPage('GitHub API error.'));
     }
     const markdown = await response.text();
@@ -506,8 +514,6 @@ async function getTree(branch = 'main') {
     clearTimeout(timeout);
   }
 }
-
-
 
 app.listen(SERVER_PORT, () => {
   console.log(`EduMark Server running at http://localhost:${SERVER_PORT}/`);
