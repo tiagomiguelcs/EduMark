@@ -12,7 +12,7 @@
 - **Live preview mode** for local Markdown files with automatic reload on changes, ideal for writing and previewing lecture notes in real time before pushing them to a repository.
 - **Syntax highlightin**g for code blocks (via highlight.js).
 - **Custom containers** (info, warning, danger, success, and references).
-- **Lightweight**, single-file server (`edumark.js`).
+- **Lightweight** and easily deployable as a single-file server.
 
 ## Quick Start
 Prerequisites
