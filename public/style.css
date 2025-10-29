@@ -316,7 +316,8 @@ footer img{
 
 .container.references{
   display: flex;
-  justify-content: center;
+  justify-content: left;
+  align-content: ;
   padding: 8px 15px;
   align-items: center;
   background-color: #f8f9fa;
