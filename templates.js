@@ -1,7 +1,7 @@
 import pkg from './package.json' with { type: 'json' };
 const YEAR = new Date().getFullYear();
 
-export function createPage(content = ''){
+export function createPage(content = '') {
     const page = `
     <!doctype html>
     <html>
@@ -19,7 +19,7 @@ export function createPage(content = ''){
         </body>
     </html>
     `
-    return(page);
+    return (page);
 }
 
 export function createLandingPage(body = '') {
@@ -35,10 +35,10 @@ export function createLandingPage(body = '') {
             </div>
         </div>
     `;
-    return(createPage(landing));
+    return (createPage(landing));
 }
 
-export function createErrorPage(message){
+export function createErrorPage(message) {
     const error = `
     <div class="landing">
       <img src="/edumark/logo.png" width="126px"/>
@@ -50,10 +50,10 @@ export function createErrorPage(message){
       </div>
     </div>
     `;
-    return(createPage(error))
+    return (createPage(error))
 }
 
-export function createViewPage(body = ''){
+export function createViewPage(body = '') {
     const view = `
     ${body}
     <footer>

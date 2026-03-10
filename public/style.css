@@ -296,6 +296,12 @@ footer img{
   color: #43946c;
 }
 
+.container.spoiler{
+  background-color: #f4f4f5;
+  border-left: 4px solid #cfcfcf;
+  color: #808080;
+}
+
 .container.info{
   background-color: #d9edf7;
   border-left: 4px solid rgb(2 132 199);

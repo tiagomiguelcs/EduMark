@@ -73,11 +73,16 @@ function registerContainer(name, title) {
     render(tokens, idx) {
       const token = tokens[idx];
       if (token.nesting === 1) {
-        if (name==="references")
-          return `<div class="container ${name}"><span>Referências</span>`;
-        else
-          return `<div class="container ${name}">`;
+        switch (name) {
+          case "references":
+            return `<div class="container ${name}"><span>Referências</span>`;
+          case "spoiler":
+            return `<div class="container ${name}"><details><summary>Spoilers</summary>`;
+          default:
+            return `<div class="container ${name}">`;
+        }
       } else {
+        if (name === "spoiler") return "</details></div>\n";
         return "</div>\n";
       }
     },
@@ -88,6 +93,7 @@ registerContainer("warning", "Warning");
 registerContainer("danger", "Tip");
 registerContainer("success", "Success");
 registerContainer("references", "References");
+registerContainer("spoiler", "Spoilers");
 
 // Homepage
 app.get("/", (req, res) => {
