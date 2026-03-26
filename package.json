@@ -1,7 +1,7 @@
 {
   "name": "edumark",
-  "version": "0.0.2",
-  "designation": "alpha",
+  "version": "0.9",
+  "designation": "beta",
   "main": "edumark.js",
   "type": "module",
   "scripts": {
@@ -21,12 +21,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "dayjs": "^1.11.18",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
+    "dayjs": "^1.11.20",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
     "highlight.js": "^11.11.1",
-    "katex": "^0.16.25",
-    "markdown-it": "^14.1.0",
+    "katex": "^0.16.43",
+    "markdown-it": "^14.1.1",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-container": "^4.0.0",
     "markdown-it-emoji": "^3.0.0",
@@ -34,7 +34,7 @@
     "markdown-it-texmath": "^1.0.0",
     "markdown-it-toc-done-right": "^4.2.0",
     "node-fetch": "^3.3.2",
-    "nodemon": "^3.1.10",
-    "pm2": "^6.0.13"
+    "nodemon": "^3.1.14",
+    "pm2": "^6.0.14"
   }
 }
