@@ -7,6 +7,7 @@ import toc from "markdown-it-toc-done-right";
 import tm from "markdown-it-texmath";
 import dotenv from 'dotenv';
 import {createLandingPage, createViewPage, createErrorPage} from './templates.js';
+import { full as emoji } from 'markdown-it-emoji'
 import { readFile, stat } from 'fs/promises';
 import { join, normalize } from 'path';
 import hljs from 'highlight.js';
@@ -45,6 +46,7 @@ const md = new MarkdownIt({
   }
 })
   .use(mark)
+  .use(emoji)
   .use(tm, {
     engine: (await import('katex')).default,
     delimiters: 'dollars',
@@ -59,6 +61,15 @@ const md = new MarkdownIt({
     containerClass: "markdown-toc-list",
     containerId: "toc",
   });
+
+
+/**
+ * Render emoji icons as span elements.
+ */
+md.renderer.rules.emoji = function(token, idx) {
+  return '<span class="emoji emoji_' + token[idx].markup + '">'+token[idx].content+'</span>';
+};
+
 /**
  * Register a markdown-it container plugin for custom containers (info, warning, ...)
  *
@@ -398,6 +409,7 @@ function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) 
   for (let tag of tags) tagsHtml += `<div>${tag}</div>`;
   // Remove tags from the markdown file, they will be placed somewhere else. 
   markdownContent = removeTags(markdownContent);
+
   
   // Render Markdown Content
   const combinedHtml = md.render('[toc]\n' + markdownContent);

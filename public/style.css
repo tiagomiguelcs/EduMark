@@ -69,6 +69,10 @@ footer img{
   filter: grayscale(1);
 }
 
+.emoji {
+  font-size: 1.2em;
+}
+
 .landing{
   display: flex;
   flex-direction: column;
