@@ -77,12 +77,13 @@ function registerContainer(name, title) {
           case "references":
             return `<div class="container ${name}"><span>Referências</span>`;
           case "spoiler":
-            return `<div class="container ${name}"><details><summary>Spoilers</summary>`;
+          case "spoilers":
+            return `<div class="container spoilers"><details><summary>Spoilers</summary>`;
           default:
             return `<div class="container ${name}">`;
         }
       } else {
-        if (name === "spoiler") return "</details></div>\n";
+        if (name === "spoiler" || name === "spoilers") return "</details></div>\n";
         return "</div>\n";
       }
     },
@@ -94,6 +95,7 @@ registerContainer("danger", "Tip");
 registerContainer("success", "Success");
 registerContainer("references", "References");
 registerContainer("spoiler", "Spoilers");
+registerContainer("spoilers", "Spoilers");
 
 // Homepage
 app.get("/", (req, res) => {
