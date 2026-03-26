@@ -60,6 +60,9 @@ export function createViewPage(body = '') {
         <img src="/edumark/logo.png"/>
         <a href="${pkg.repository.url}" target="_blank"><i class="nf nf-md-github" aria-hidden="true"></i></a>
         <span><b>EduMark</b> © ${YEAR} | ${pkg.version} ${pkg.designation}</span>
+        <script>
+            console.info("Roads? Where we're going, we don't need roads.");
+        </script>
     </footer>
     `;
     return (createPage(view));

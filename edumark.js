@@ -407,9 +407,9 @@ function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) 
   const tags = parseTags(markdownContent);
   let tagsHtml = "";
   for (let tag of tags) tagsHtml += `<div>${tag}</div>`;
+
   // Remove tags from the markdown file, they will be placed somewhere else. 
   markdownContent = removeTags(markdownContent);
-
   
   // Render Markdown Content
   const combinedHtml = md.render('[toc]\n' + markdownContent);
