@@ -245,6 +245,7 @@ footer img{
 
 .markdown pre{
   font-size: var(--code-font-size);
+  line-height: 1.35;
   padding: 4px; 
   /* break words to the next line */
   white-space: pre-wrap;
@@ -253,6 +254,7 @@ footer img{
   border-radius: 2px;
   
 }
+.markdown pre code{line-height: inherit;}
 .markdown :not(pre) > code{
   font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
   background-color: var(--ligther-gray);
@@ -426,3 +428,21 @@ footer img{
 /* Desktop: all visible
 @media (min-width: 1201px) { }
  */
+
+ .line {
+  display: block;
+  line-height: inherit;
+}
+
+.line-number {
+  color: #ccc;
+  display: inline-block;
+  width: 1.8em;
+  padding: 0 !important;
+  user-select: none;
+  opacity: 0.5;
+}
+
+.line-content {
+  display: inline-block;
+}

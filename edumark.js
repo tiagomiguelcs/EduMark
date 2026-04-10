@@ -34,12 +34,24 @@ const md = new MarkdownIt({
   linkify: true, 
   typographer: true,
   highlight: function (str, lang) {
-    if (lang.indexOf("=") !== -1) lang = lang.replace("=", ""); // line numbers is not yet supported.
+    // Lines of code will always have line numbers enabled, except code with a single line.
+    if (lang.indexOf("=") !== -1) lang = lang.replace("=", ""); 
     if (lang && hljs.getLanguage(lang)) {
       try {
-        return '<pre class="hljs"><code>' +
-               hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
-               '</code></pre>';
+        const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
+        let numbered = highlighted.split('\n');
+        let numberedLength = numbered.length;
+        // Do not add line numbers if the code block is a single line
+        if (numberedLength === 2) 
+           return '<pre class="hljs"><code>'+highlighted+'</code></pre>';
+        // Add line numbers
+        numbered = numbered.map((line, index) => {
+            return `<span class="line"><span class="line-number">${index + 1}</span><span class="line-content">${line}</span></span>`;
+        });
+        // Remove the extra last line number 
+        if (numbered[numberedLength- 1] === '<span class="line"><span class="line-number">'+numberedLength+'</span><span class="line-content"></span></span>') numbered.pop(); 
+        numbered = numbered.join('');
+        return '<pre class="hljs"><code>' + numbered + '</code></pre>';
       } catch (__) {}
     }
     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
@@ -282,7 +294,7 @@ app.get('/view', async (req, res) => {
 
     // Build repository path and guard again for traversal
     const repoPath = filePaths[0];
-    console.log(repoPath);
+    // console.log(repoPath);
     if (repoPath.includes('..')) return res.status(400).send(createErrorPage('Invalid path'));
 
     // Ensure GitHub configuration is present
