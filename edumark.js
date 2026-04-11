@@ -13,6 +13,8 @@ import { join, normalize } from 'path';
 import hljs from 'highlight.js';
 import dayjs from 'dayjs';
 import fs from 'fs';
+import path from 'node:path'
+import { blob } from "node:stream/consumers";
 
 const app = express();
 // Load variables from '.env'
@@ -26,7 +28,9 @@ const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const GITHUB_REPO  = process.env.GITHUB_REPO;
 const PREVIEW      = process.env.PREVIEW;
 const PREVIEW_FOLDER = process.env.PREVIEW_FOLDER; // Place markdown documents in this folder to preview them.
+const PREVIEW_FOLDER_NAME = PREVIEW_FOLDER.replace(/[\\/]/g, '');
 const CACHE_DIRECTORY = process.env.CACHE_DIRECTORY || "cache";
+if (PREVIEW) app.use(`/${PREVIEW_FOLDER_NAME}`, express.static("docs"));
 
 // Initialize Markdown parser with HTML enabled and necessary plugins
 const md = new MarkdownIt({ 
@@ -192,7 +196,10 @@ app.get('/preview', async (req, res) => {
     if (!fullPath.endsWith('.md')) return res.status(400).send(createErrorPage('Only .md files allowed'));
 
     const markdown = await readFile(fullPath, 'utf-8');
-    const result = renderMarkdown(markdown, undefined, filename); // Pass filename for live reload
+
+    // Get images
+
+    const result = renderMarkdown(markdown, undefined, undefined, filename); // Pass filename for live reload
     return res.status(200).send(result.body);
 
   }catch (err) {
@@ -240,7 +247,8 @@ app.get('/view', async (req, res) => {
     // Resolve the file path dynamically without hardcoding directories 
     // - Get repo tree from cache, or retrieve tree if not locally available, 
     //   then get filename path(s) if available.
-    let filePaths=undefined;
+    let filePaths  = undefined;
+    let imagePaths = []; 
     let DEBUG=false;
     try{
       let attempts=0;
@@ -281,7 +289,22 @@ app.get('/view', async (req, res) => {
           if (DEBUG) console.log(` > File not found`);
           return res.status(404).send(createErrorPage('File not found'));
         }
-        if (attempts===1 || filePaths !== undefined) break;
+        
+        if (attempts===1 || filePaths !== undefined){
+          // Get images of the markdown document
+          const parentDir = path.dirname(filePaths[0]);
+          for (let i = 0; i < cacheData.length; i++) {
+            let fn = cacheData[i][0];
+            // Check if fn is a image filename (e.g., ends with .png, .jpg, .jpeg, .gif, .svg)
+            if (/\.(png|jpg|jpeg|gif|svg)$/i.test(fn)) {
+              for (let j = 0; j < cacheData[i][1].length; j++) {
+                let imagePath = cacheData[i][1][j];
+                if (imagePath.includes(parentDir)) imagePaths.push(imagePath);
+              }
+            }
+          }
+          break;
+        }
         // Remove a potentially old cache file to be refetched in the next attempt. 
         if (DEBUG) console.log(` > File was not found, refreshing the cache file in an attempt to find the file`)
         attempts = attempts + 1;
@@ -292,6 +315,7 @@ app.get('/view', async (req, res) => {
       return res.status(response.status).send(createErrorPage('GitHub API error.'));
     }
 
+    if (DEBUG) console.log(` > Images of the markdown document '${filename}': ${JSON.stringify(imagePaths)}`);
     // Build repository path and guard again for traversal
     const repoPath = filePaths[0];
     // console.log(repoPath);
@@ -306,12 +330,13 @@ app.get('/view', async (req, res) => {
     // Encode each path segment to keep slashes between segments
     const urlPath = repoPath.split('/').map(encodeURIComponent).join('/');
     const url = `https://api.github.com/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${urlPath}?ref=${encodeURIComponent(branch)}`;
-    
+
     // Timeout support
     const controller = new AbortController();
     const timeoutMs = 10000; // 10s
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
+    // Fetch Document from the GitHub Repo
     let response, lastModifiedDateTime;
     try {
       response = await fetch(url, {
@@ -348,8 +373,44 @@ app.get('/view', async (req, res) => {
       return res.status(response.status).send(createErrorPage('GitHub API error.'));
     }
     const markdown = await response.text();
-    const result = renderMarkdown(markdown, lastModifiedDateTime);
+
+    // Fetch Images of the Markdown Document From the GitHub Repo
+    const documentImages = new Map(
+      await Promise.all(
+        imagePaths.map(async (imagePath) => {
+        const imageUrl = `https://api.github.com/repos/${encodeURIComponent(GITHUB_OWNER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${imagePath}?ref=${encodeURIComponent(branch)}`;
+        if (DEBUG) console.log(" > Fetching ", imageUrl);
+        
+        try {
+          const response = await fetch(imageUrl, {
+            signal: controller.signal,
+            headers: {
+              Authorization: `Bearer ${GITHUB_TOKEN}`,
+              Accept: 'application/vnd.github.v3.raw',
+              'User-Agent': 'docs-sync'
+            }
+          });
+
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const base64 = buffer.toString('base64');
+          const mimeType = getMimeTypeFromPath(imagePath);
+          const image = `data:${mimeType};base64,${base64}`;
+          
+            return [path.basename(imagePath), image];
+        } catch (err) {
+          if (err.name === 'AbortError') {
+            throw new Error('GitHub API request timed out');
+          }
+          throw new Error(`Error fetching image ${imagePath}: ${err.message}`);
+        }
+        })
+      )
+    );
+
+    const result = renderMarkdown(markdown, documentImages, lastModifiedDateTime);
     return res.status(200).send(result.body);
+
   } catch (err) {
     console.log(err);
     return res.status(500).send(createErrorPage('Internal Server Error'));
@@ -414,7 +475,8 @@ function parseTags(markdownContent){
  * @returns {{status: number, body: string}} An object containing the HTTP status code
  * and the rendered HTML string suitable for sending as an Express response body.
  */
-function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) {
+function renderMarkdown(markdownContent, images, lastModifiedDatetime, filename = null) {
+  const DEBUG = false;
   // Find document tags and convert to html 
   const tags = parseTags(markdownContent);
   let tagsHtml = "";
@@ -480,6 +542,32 @@ function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) 
     </script>
   ` : '';
   
+  // Find all images of the document and only replace those with base64 data (i.e., images fetched from GitHub) that are 
+  // not already URLs.
+  htmlContent = htmlContent.replace(
+    /<img([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi,
+    (match, before, src, after) => {
+      // Check if src is a URL (e.g., starts with http://, https://, or data:)
+      if (/^(https?:\/\/|data:)/i.test(src)) {
+        if (DEBUG) console.log(` > Skipping URL image: ${src}`);
+        return match; // Return original tag unchanged
+      }
+      // get the filename from the src
+      const filename = path.basename(src);
+      const imageData = images && images.get(filename);
+      if (imageData) {
+        if (DEBUG) console.log(` > Found image: ${filename} in src: ${src}`);
+        return `<img${before}src="${imageData}"${after}>`;
+      }
+      // Add support for images rendering when in preview mode 
+      if (images === undefined && lastModifiedDatetime === undefined){
+        return `<img${before}src="${PREVIEW_FOLDER_NAME}/${src}"${after}>`;
+      }
+      if (DEBUG) console.log(" > Image not found, defaulting to the original src: ", src);
+      return match;
+    }
+  );
+
   const body = createViewPage(`
         <div class="layout">
           <div class="toc">
@@ -501,6 +589,24 @@ function renderMarkdown(markdownContent, lastModifiedDatetime, filename = null) 
         ${liveReloadScript}
   `);
   return { status: 200, body };
+}
+
+/**
+ * Get MIME type from file path or filename.
+ * @param {string} filePath - The file path or filename.
+ * @returns {string} The MIME type.
+ */
+function getMimeTypeFromPath(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  const mimeTypes = {
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.webp': 'image/webp'
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
 }
 
 /**
