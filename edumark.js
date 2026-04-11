@@ -196,9 +196,6 @@ app.get('/preview', async (req, res) => {
     if (!fullPath.endsWith('.md')) return res.status(400).send(createErrorPage('Only .md files allowed'));
 
     const markdown = await readFile(fullPath, 'utf-8');
-
-    // Get images
-
     const result = renderMarkdown(markdown, undefined, undefined, filename); // Pass filename for live reload
     return res.status(200).send(result.body);
 
