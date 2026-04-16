@@ -568,9 +568,13 @@ function renderMarkdown(markdownContent, images, lastModifiedDatetime, filename 
   const body = createViewPage(`
         <div class="layout">
           <div class="toc">
-            <div class="brand" onclick="location.replace(location.href.split('#')[0])" style="cursor:pointer">
-              <img src="/edumark/logo.png"/>
-              <span>EduMark</span>
+            <div class="brand" style="cursor:pointer">
+              <img onclick="location.replace(location.href.split('#')[0])" src="/edumark/logo.png"/>
+              <span onclick="location.replace(location.href.split('#')[0])">EduMark</span>
+              <div class="toolbar">
+                <i id="b-darkmode" class="nf nf-fa-moon" onclick="toggleDarkMode()"></i>
+                <i class="nf nf-md-printer" onclick="window.print()"></i>
+              </div>
             </div>
             ${tocHtml}
           </div>

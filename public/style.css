@@ -446,3 +446,11 @@ footer img{
 .line-content {
   display: inline-block;
 }
+
+.toolbar{
+  display:flex;
+  align-items:center;
+  margin-left:auto; 
+  gap: 6px;
+  color: var(--dark-gray);
+}

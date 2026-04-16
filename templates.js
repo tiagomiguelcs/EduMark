@@ -10,9 +10,36 @@ export function createPage(content = '') {
             <title>EduMark - Educational Markdown Viewer</title>
             <link rel="stylesheet" href="/edumark/style.css">
             <link rel="stylesheet" href="https://www.nerdfonts.com/assets/css/webfont.css">
-            <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"> -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+            <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+            <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" disabled>
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+            <script src="https://unpkg.com/darkreader/darkreader.js"></script>
+            <script>
+            function toggleDarkMode() {
+                const isDark = DarkReader.isEnabled();
+                const lightCSS = document.getElementById('hljs-light');
+                const darkCSS = document.getElementById('hljs-dark');
+                const darkModeIcon = document.getElementById('b-darkmode');
+                if (isDark) {
+                    // Go back to light mode
+                    DarkReader.disable();
+                    lightCSS.disabled = false;
+                    darkCSS.disabled = true;
+                    darkModeIcon.className = "nf nf-fa-moon"
+                }else{
+                    DarkReader.setFetchMethod(window.fetch);
+                    // Activate dark mode
+                    DarkReader.enable({
+                        brightness: 100,
+                        contrast: 90,
+                        sepia: 10
+                    });
+                    darkModeIcon.className = "nf nf-oct-sun"
+                    lightCSS.disabled = true;
+                    darkCSS.disabled = false;
+                }
+            }
+            </script>
         </head>
         <body>
         ${content}
