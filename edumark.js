@@ -13,8 +13,7 @@ import { join, normalize } from 'path';
 import hljs from 'highlight.js';
 import dayjs from 'dayjs';
 import fs from 'fs';
-import path from 'node:path'
-import { blob } from "node:stream/consumers";
+import path from 'node:path';
 
 const app = express();
 // Load variables from '.env'
@@ -26,6 +25,7 @@ const SERVER_PORT = process.env.SERVER_PORT || 3131;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const GITHUB_REPO  = process.env.GITHUB_REPO;
+const MARKDOWN_RENDER_TAGS = process.env.MARKDOWN_RENDER_TAGS;
 const PREVIEW      = process.env.PREVIEW;
 const PREVIEW_FOLDER = process.env.PREVIEW_FOLDER; // Place markdown documents in this folder to preview them.
 const PREVIEW_FOLDER_NAME = PREVIEW_FOLDER.replace(/[\\/]/g, '');
@@ -475,13 +475,13 @@ function parseTags(markdownContent){
 function renderMarkdown(markdownContent, images, lastModifiedDatetime, filename = null) {
   const DEBUG = false;
   // Find document tags and convert to html 
-  const tags = parseTags(markdownContent);
   let tagsHtml = "";
-  for (let tag of tags) tagsHtml += `<div>${tag}</div>`;
-
-  // Remove tags from the markdown file, they will be placed somewhere else. 
-  markdownContent = removeTags(markdownContent);
-  
+  if (MARKDOWN_RENDER_TAGS == 1){
+    const tags = parseTags(markdownContent);
+    for (let tag of tags) tagsHtml += `<div>${tag}</div>`;
+    // Remove tags from the markdown file, they will be placed somewhere else. 
+    markdownContent = removeTags(markdownContent);
+  }
   // Render Markdown Content
   const combinedHtml = md.render('[toc]\n' + markdownContent);
   let tocHtml = '';
