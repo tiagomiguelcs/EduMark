@@ -39,6 +39,18 @@ export function createPage(content = '') {
                     darkCSS.disabled = false;
                 }
             }
+            function englishVersion(){
+                const prefix = "en-";
+                const params = new URLSearchParams(window.location.search);
+                const filename = params.get("filename");
+                let nfilename;
+                if (filename.startsWith(prefix))
+                    nfilename = filename.slice(3);
+                else
+                    nfilename = prefix+filename;
+                params.set("filename", nfilename);
+                window.location.search = params.toString();
+            }
             </script>
         </head>
         <body>

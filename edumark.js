@@ -573,7 +573,8 @@ function renderMarkdown(markdownContent, images, lastModifiedDatetime, filename 
               <span onclick="location.replace(location.href.split('#')[0])">EduMark</span>
               <div class="toolbar">
                 <i id="b-darkmode" class="nf nf-fa-moon" onclick="toggleDarkMode()"></i>
-                <i class="nf nf-md-printer" onclick="window.print()"></i>
+                <i id="b-translate" class="nf nf-md-translate" onclick="englishVersion()"></i>
+                <i id="b-print" class="nf nf-md-printer" onclick="window.print()"></i>
               </div>
             </div>
             ${tocHtml}
