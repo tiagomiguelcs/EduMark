@@ -116,7 +116,7 @@ footer img{
 
 .layout{
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr) 200px;
+  grid-template-columns: 212px minmax(0, 1fr) 200px;
   padding: 18px 0px; /* top/bottom right/left */
   margin: 0 auto;
   max-width: 1200px;
