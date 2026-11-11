@@ -40,16 +40,20 @@ export function createPage(content = '') {
                 }
             }
             function englishVersion(){
-                const prefix = "en-";
-                const params = new URLSearchParams(window.location.search);
-                const filename = params.get("filename");
-                let nfilename;
-                if (filename.startsWith(prefix))
-                    nfilename = filename.slice(3);
-                else
-                    nfilename = prefix+filename;
-                params.set("filename", nfilename);
-                window.location.search = params.toString();
+                const GOOGLE_TRANSLATE=true;
+                if (!GOOGLE_TRANSLATE){
+                    const prefix = "en-";
+                    const params = new URLSearchParams(window.location.search);
+                    const filename = params.get("filename");
+                    let nfilename;
+                    if (filename.startsWith(prefix))
+                        nfilename = filename.slice(3);
+                    else
+                        nfilename = prefix+filename;
+                    params.set("filename", nfilename);
+                    window.location.search = params.toString();
+                }
+                window.open("https://translate.google.com/translate?sl=auto&tl=en&u="+encodeURIComponent(window.location.href), "_blank");
             }
             </script>
         </head>
