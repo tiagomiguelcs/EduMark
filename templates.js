@@ -55,6 +55,34 @@ export function createPage(content = '') {
                 }
                 window.open("https://translate.google.com/translate?sl=auto&tl=en&u="+encodeURIComponent(window.location.href), "_blank");
             }
+            
+            // Smooth scroll to anchor links (#heading), including those with special characters (e.g., Portuguese accents)
+            document.addEventListener("click", function(event) {
+                const link = event.target.closest('a[href*="#"]');
+                if (!link) return;
+
+                const hash = new URL(link.href, location.href).hash;
+                if (!hash) return;
+
+                const hashValue = hash.substring(1);
+                let target = document.getElementById(hashValue);
+                
+                if (!target) {
+                    // Try with normalized encoding for accented characters
+                    const decodedId = decodeURIComponent(hashValue).trim().toLowerCase().replace(/\s+/g, "-");
+                    const encodedId = encodeURIComponent(decodedId);
+                    target = document.getElementById(encodedId);
+                }
+
+                if (target) {
+                    event.preventDefault();
+
+                    target.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                }
+            }, true);
             </script>
         </head>
         <body>
