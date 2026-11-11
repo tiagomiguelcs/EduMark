@@ -15,7 +15,16 @@ export function createPage(content = '') {
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
             <script src="https://unpkg.com/darkreader/darkreader.js"></script>
             <script>
-            function toggleDarkMode() {
+                // Hide translate and dark mode buttons on the translate page
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (window.location.href.includes("translate")) {
+                        const btranslate = document.getElementById('b-translate');
+                        const bdarkmode = document.getElementById('b-darkmode');
+                        btranslate.style.display = 'none';
+                        bdarkmode.style.display = 'none';
+                    }
+                });
+                function toggleDarkMode() {
                 const isDark = DarkReader.isEnabled();
                 const lightCSS = document.getElementById('hljs-light');
                 const darkCSS = document.getElementById('hljs-dark');
