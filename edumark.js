@@ -485,6 +485,19 @@ function parseTags(markdownContent){
  */
 function renderMarkdown(markdownContent, images, lastModifiedDatetime, filename = null) {
   const DEBUG = false;
+  // Check if the page was translated by Google Translate, if so, add a translation disclaimer
+  const headers = req.rawHeaders;
+  const search = "translate.google.com";
+  const isTranslated = headers.some(header =>
+    header.toLowerCase().includes(search.toLowerCase())
+  );
+  if (isTranslated) {
+    markdownContent = `:::danger
+:warning: **Translation Disclaimer**<br/>
+This lecture material has been automatically translated from Portuguese using Google Translate. Please be aware that the translation may contain inaccuracies, including minor translation errors, incorrect technical terminology, or formatting inconsistencies. Students are advised to refer to the original Portuguese version whenever clarification is needed.
+:::
+` + markdownContent;
+  }
   // Find document tags and convert to html 
   let tagsHtml = "";
   if (MARKDOWN_RENDER_TAGS == 1){
