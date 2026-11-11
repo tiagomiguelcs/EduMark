@@ -195,10 +195,21 @@ app.get('/preview', async (req, res) => {
     if (!fullPath.startsWith(defaultBasePath)) return res.status(400).send(createErrorPage('Invalid file path'));
     if (!fullPath.endsWith('.md')) return res.status(400).send(createErrorPage('Only .md files allowed'));
 
-    const markdown = await readFile(fullPath, 'utf-8');
+    // Attempt to read the file from the full path, if it fails, try to read from the PREVIEW_FOLDER as an absolute path.
+    let markdown;
+    try {
+      markdown = await readFile(fullPath, 'utf-8');
+    } catch (error) {
+      try {
+        fullPath = normalize(join(PREVIEW_FOLDER, filename));
+        markdown = await readFile(fullPath, 'utf-8');
+      } catch (error) {
+        throw error;
+      }
+    }
+
     const result = renderMarkdown(markdown, undefined, undefined, filename); // Pass filename for live reload
     return res.status(200).send(result.body);
-
   }catch (err) {
     if (err.code === 'ENOENT') return res.status(404).send(createErrorPage('File not found'));
     console.error(err);
