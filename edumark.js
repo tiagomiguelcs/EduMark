@@ -208,7 +208,7 @@ app.get('/preview', async (req, res) => {
       }
     }
 
-    const result = renderMarkdown(markdown, undefined, undefined, filename); // Pass filename for live reload
+    const result = renderMarkdown(markdown, undefined, undefined, filename, req); // Pass filename for live reload
     return res.status(200).send(result.body);
   }catch (err) {
     if (err.code === 'ENOENT') return res.status(404).send(createErrorPage('File not found'));
@@ -416,7 +416,7 @@ app.get('/view', async (req, res) => {
       )
     );
 
-    const result = renderMarkdown(markdown, documentImages, lastModifiedDateTime);
+    const result = renderMarkdown(markdown, documentImages, lastModifiedDateTime, null, req);
     return res.status(200).send(result.body);
 
   } catch (err) {
@@ -483,7 +483,7 @@ function parseTags(markdownContent){
  * @returns {{status: number, body: string}} An object containing the HTTP status code
  * and the rendered HTML string suitable for sending as an Express response body.
  */
-function renderMarkdown(markdownContent, images, lastModifiedDatetime, filename = null) {
+function renderMarkdown(markdownContent, images, lastModifiedDatetime, filename = null, req) {
   const DEBUG = false;
   // Check if the page was translated by Google Translate, if so, add a translation disclaimer
   const headers = req.rawHeaders;
